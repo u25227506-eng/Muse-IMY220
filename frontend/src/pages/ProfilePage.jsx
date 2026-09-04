@@ -4,21 +4,24 @@ import Profile from "../components/Profile";
 import Friend from "../components/Friend";
 import CreatePost from "../components/CreatePost";
 import Feed from "../components/Feed";
+import avatar1 from "../assets/avatar1.jpg";
+import avatar2 from "../assets/avatar2.jpg";
+import art2 from "../assets/art2.jpg";
 
 const dummyUserPosts = [
-    { id: 3, userId: 1, username: "tshidi", imageUrl: "https://via.placeholder.com/200", caption: "My latest work" },
+    { id: 3, userId: 1, username: "tshidi", imageUrl: art2, caption: "My latest work" },
 ];
 
 const dummyUser = {
     id: 1,
     username: "tshidi",
     bio: "artsy, loves photography",
-    avatarUrl: "https://via.placeholder.com/100",
+    avatarUrl: avatar1,
 
 };
 
 const dummyFriends = [
-    {id: 2, username: "samuel", avatarUrl: "https://via.placeholder.com/50"},
+    {id: 2, username: "samuel", avatarUrl: avatar2},
 ];
 
 function ProfilePage(){
