@@ -26,3 +26,6 @@ open browser and go to: http://localhost:5173
 GitHub
 
 guthub repo: http://github.com/u25227506-eng/Muse-IMY220
+
+MongoDB connection String: 
+mongodb+srv://u25227506_db_user:XH9cWs59ylXX4kfa@cluster0.wjgvv1o.mongodb.net/?appName=Cluster0

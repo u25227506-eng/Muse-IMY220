@@ -2,9 +2,9 @@ import PostPreview from "./PostPreview";
 
 function Feed ({posts}){
     return (
-        <div>
+        <div className="flex flex-col gap-4">
             {posts.map((post) => (
-                <PostPreview key={post.id} post={post} />
+                <PostPreview key={post._id} post={post} />
             ))}
         </div>
     );
