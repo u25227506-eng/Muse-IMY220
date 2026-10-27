@@ -3,7 +3,7 @@ import cors from "cors";
 import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
-import connectDB from "./db.js";
+import {connectDB, getDB} from "./db.js";
 import User from "./models/User.js";
 import Post from "./models/Post.js";
 import Album from "./models/Album.js";
@@ -33,8 +33,9 @@ const upload = multer({storage});
 
 app.post("/api/signin", async (req, res) => {
     try{
+        const db = getDB();
         const {email, password} = req.body;
-        const user = await User.findOne({email, password});
+        const user = await db.collection("users").findOne({email, password});
         if (!user){
             return res.status(401).json({message: "Invalid email or password"});
         }
@@ -46,15 +47,25 @@ app.post("/api/signin", async (req, res) => {
 
 app.post("/api/signup", async (req, res) => {
     try{
+        const db = getDB();
         const {username, email, password} = req.body;
-        const existing = await User.findOne({email});
+        const existing = await db.collection("users").findOne({email});
         if (existing){
             return res.status(400).json({message: "Email already in use"});
         }
-        const user = new User({username, email, password});
-        await user.save();
-        res.json({message: "Sign up successful", user});
-    } catch (err){
+        const newUser = {
+            username, email, password, 
+            bio: "",
+            avatarUrl: "",
+            friends: [],
+            friendRequests: [],
+            isAdmin: false,
+        };
+
+        const result = await db.collection("users").insertOne(newUser);
+
+        res.json({message: "Sign up successful", user: {...newUser, _id: result.insertedId}});
+    } catch(err){
         res.status(500).json({message: "Signup error", error: err.message});
     }
 });

@@ -1,16 +1,25 @@
-import mongoose from "mongoose";
+import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
-
 dotenv.config();
 
-async function connectDB(){
-    try{
-        await mongoose.connect(process.env.MONGO_URI);
-        console.log("MongoDB connected");
-    }catch(err){
-        console.error("MongoDB connection error:", err);
-        process.exit(1);
-    }
+// Student Number: u25227506
+
+let client;
+let db;
+
+async function connectDB() {
+    const uri = process.env.MONGO_URI;
+
+    client = new MongoClient(uri);
+
+    await client.connect();
+
+    db = client.db("muse");
+    console.log("Connected to MongoDB");
 }
 
-export default connectDB;
+function getDB() {
+    return db;
+}
+
+export { connectDB, getDB };
