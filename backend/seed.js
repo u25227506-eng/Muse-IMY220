@@ -10,6 +10,11 @@ function daysAgo(n) {
     return new Date(Date.now() - n * 24 * 60 * 60 * 1000);
 }
 
+ // finds the uploaded file whose name contains the keyword (e.g. "sunset" finds 1790926254775-sunset.jpg)
+function pickImage(keyword) {
+    const found = IMAGES.find(f => f.includes(keyword));
+    return "/uploads/" + (found || IMAGES[0]);
+}
 async function seed() {
     await connectDB();
     const db = getDB();
@@ -59,21 +64,21 @@ async function seed() {
 
     await db.collection("users").insertMany(users);
 
-    // 5. posts: [author index, caption, hashtags (no #), days ago]
+    // 5. posts: [author index, caption, hashtags (no #), days ago, image keyword]
     const postData = [
-        [0, "Last light over the pier", ["goldenhour", "sunset"], 1],
-        [2, "Baroque ceilings never get old", ["art", "baroque"], 2],
-        [2, "Weekend sketchbook dump", ["sketch", "drawing"], 3],
-        [3, "Studio session, lo-fi on repeat", ["music", "lofi"], 4],
-        [4, "Vintage lines, no filter", ["vintage", "monochrome"], 5],
-        [4, "Joburg rooftops at dusk", ["joburg", "street"], 6],
-        [7, "First roll of the year", ["film", "analogue"], 7],
-        [5, "Peonies in watercolour", ["watercolour", "floral"], 8],
-        [6, "Marimba practice, take three", ["music", "marimba"], 9],
-        [0, "Market day colours", ["street", "colour"], 10],
-        [5, "Portrait study in charcoal", ["portrait", "art"], 11],
-        [0, "Morning light on the desk", ["stilllife", "goldenhour"], 12],
-        [7, "Slow mornings, slow film", ["film", "analogue"], 13],
+        [0, "Last light over the pier", ["goldenhour", "sunset"], 1, "sunset"],
+        [2, "Baroque ceilings never get old", ["art", "baroque"], 2, "art1"],
+        [2, "Sketchbook study of a painted ceiling", ["sketch", "drawing"], 3, "art1"],
+        [3, "Driving home with the lo-fi on", ["music", "lofi"], 4, "avatar2"],
+        [4, "Vintage lines, no filter", ["vintage", "monochrome"], 5, "art2"],
+        [4, "Parked up at dusk, Joburg", ["joburg", "street"], 6, "avatar2"],
+        [7, "First roll of the year, a vintage cockpit", ["film", "analogue"], 7, "art2"],
+        [5, "Gerbera in soft light", ["flowers", "floral"], 8, "flowers"],
+        [6, "Marimba practice by the water, take three", ["music", "marimba"], 9, "sunset"],
+        [0, "Market-day colours", ["flowers", "colour"], 10, "flowers"],
+        [5, "Figure study after a ceiling painting", ["portrait", "art"], 11, "art1"],
+        [0, "Another evening, another sunset", ["goldenhour", "sunset"], 12, "sunset"],
+        [7, "Slow mornings, slow film", ["film", "analogue"], 13, "art2"],
     ];
 
     const posts = [];
@@ -83,7 +88,7 @@ async function seed() {
             _id: p[i],
             userId: u[author],
             username: users[author].username,
-            imageUrl: "/uploads/" + IMAGES[i % IMAGES.length],
+            imageUrl: pickImage(postData[i][4]),
             description: postData[i][1],
             hashtags: postData[i][2],
             comments: [],
