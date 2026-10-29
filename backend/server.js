@@ -318,6 +318,20 @@ app.get("/api/search", async (req, res) => {
     }
 });
 
+// which albums a post belongs to (shown on the post page)
+app.get("/api/posts/:id/albums", async (req, res) => {
+    try {
+        const db = getDB();
+        const albums = await db.collection("albums")
+            .find({ posts: new ObjectId(req.params.id) }, { projection: { name: 1 } })   // matching an array field: true if the id is anywhere in the list
+            .toArray();
+        res.json(albums);
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching albums for post", error: err.message });
+    }
+});
+
+
 // replace your old /api/posts/:id/report route with this one
 app.post("/api/posts/:id/report", async (req, res) => {
     try {

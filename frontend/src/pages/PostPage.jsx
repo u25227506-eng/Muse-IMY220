@@ -1,8 +1,8 @@
 import {useState, useEffect} from "react";
-import { useParams, useNavigate } from "react-router-dom";
 import Navigation from "../components/Navigation";
 import Post from "../components/Post";
 import EditPost from "../components/EditPost";
+import { useParams, useNavigate, Link } from "react-router-dom";
 
 function PostPage(){
     const {id} = useParams();
@@ -15,6 +15,7 @@ function PostPage(){
     const [reasons, setReasons] = useState([]);
     const [selectedReason, setSelectedReason] = useState("");
     const [reportMessage, setReportMessage] = useState("");
+    const [postAlbums, setPostAlbums] = useState([]);
 
     function loadPost(){
         fetch(`http://localhost:5000/api/posts/${id}`)
@@ -36,6 +37,26 @@ function PostPage(){
             .then(res => res.json())
             .then(data => setReasons(data));
     }, []);
+
+    function loadPostAlbums(){
+        fetch(`http://localhost:5000/api/posts/${id}/albums`)
+            .then(res => res.json())
+            .then(data => setPostAlbums(data));
+    }
+
+    async function handleAddToAlbum(e){
+        const albumId = e.target.value;
+        if (!albumId) return;
+        await fetch(`http://localhost:5000/api/albums/${albumId}/posts`, {
+            method: "POST",
+            headers: {"Content-type": "application/json"},
+            body: JSON.stringify({ postId: id }),
+        });
+        e.target.value = "";      // put the dropdown back to "Add to album..."
+        loadPostAlbums();         // refresh the "In album" line straight away
+    }
+
+    useEffect(() => { loadPostAlbums(); }, [id]);
 
     async function handleAddComment(e){
         e.preventDefault();
@@ -90,7 +111,17 @@ function PostPage(){
             <Navigation />
             <div className="max-w-2xl mx-auto px-4 py-6">
                 <Post post={post} />
-
+                {postAlbums.length > 0 && (
+                    <p className="text-sm text-muse-dark/70 mt-3">
+                        In album: {postAlbums.map((a, i) => (
+                            <span key={a._id}>
+                                <Link to={`/album/${a._id}`} className="text-muse-mauve font-medium hover:underline">{a.name}</Link>
+                                {i < postAlbums.length - 1 ? ", " : ""}
+                            </span>
+                        ))}
+                    </p>
+                )}
+                
                 {isOwner && !editing && (
                     <div className="flex gap-3 my-4">
                         <button onClick={() => setEditing(true)} className="px-4 py-1.5 rounded-full bg-white border border-muse-pink text-muse-dark text-sm font-medium hover:bg-muse-pink/20">
@@ -108,15 +139,7 @@ function PostPage(){
 
                 {isOwner && albums.length > 0 && (
                     <select
-                        onChange={(e) => {
-                            if (e.target.value) {
-                                fetch(`http://localhost:5000/api/albums/${e.target.value}/posts`, {
-                                    method: "POST",
-                                    headers: {"Content-type": "application/json"},
-                                    body: JSON.stringify({ postId: post._id }),
-                                });
-                            }
-                        }}
+                        onChange={handleAddToAlbum}
                         className="my-3 px-4 py-2 rounded-lg border border-muse-pink/50 bg-white text-muse-dark"
                     >
                         <option value="">Add to album...</option>
