@@ -6,6 +6,7 @@ import PostPage from "./pages/PostPage";
 import AlbumPage from "./pages/AlbumPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import SearchPage from "./pages/SearchPage";
+import AdminPage from "./pages/AdminPage";
 
 function App(){
   return(
@@ -17,6 +18,7 @@ function App(){
         <Route path="/post/:id" element={<ProtectedRoute><PostPage /></ProtectedRoute>} />
         <Route path="/album/:id" element={<ProtectedRoute><AlbumPage /></ProtectedRoute>} />
         <Route path="/search" element={<ProtectedRoute><SearchPage /></ProtectedRoute>} />
+        <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

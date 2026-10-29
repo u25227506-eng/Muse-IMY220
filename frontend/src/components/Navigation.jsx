@@ -15,6 +15,7 @@ function Navigation(){
                 <Link to="/home" className="font-display text-2xl font-bold tracking-wide">Muse</Link>
                 <Link to="/home" className="hover:text-muse-pink transition-colors">Home</Link>
                 {user && <Link to={`/profile/${user._id}`} className="hover:text-muse-pink transition-colors">Profile</Link>}
+                {user && user.isAdmin && <Link to="/admin" className="hover:text-muse-pink transition-colors">Admin</Link>}
             </div>
             {user && (
                 <button
