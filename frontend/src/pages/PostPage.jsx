@@ -12,6 +12,9 @@ function PostPage(){
     const [editing, setEditing] = useState(false);
     const [commentText, setCommentText] = useState("");
     const [albums, setAlbums] = useState([]);
+    const [reasons, setReasons] = useState([]);
+    const [selectedReason, setSelectedReason] = useState("");
+    const [reportMessage, setReportMessage] = useState("");
 
     function loadPost(){
         fetch(`http://localhost:5000/api/posts/${id}`)
@@ -27,6 +30,12 @@ function PostPage(){
                 .then(data => setAlbums(data));
         }
     }, [currentUser]);
+
+    useEffect(() => {
+        fetch("http://localhost:5000/api/reasons")
+            .then(res => res.json())
+            .then(data => setReasons(data));
+    }, []);
 
     async function handleAddComment(e){
         e.preventDefault();
@@ -45,9 +54,24 @@ function PostPage(){
         navigate("/home");
     }
 
-    async function handleReport(){
-        await fetch(`http://localhost:5000/api/posts/${id}/report`, { method: "POST" });
-        alert("Post reported");
+    async function handleReport(e){
+        e.preventDefault();
+        if (!selectedReason){
+            setReportMessage("Please choose a reason first.");
+            return;
+        }
+        const response = await fetch(`http://localhost:5000/api/posts/${id}/report`, {
+            method: "POST",
+            headers: {"Content-type": "application/json"},
+            body: JSON.stringify({ userId: currentUser._id, reason: selectedReason }),
+        });
+        const data = await response.json();
+        if (response.ok){
+            setReportMessage("Thanks, your report was sent.");
+            setSelectedReason("");
+        } else {
+            setReportMessage(data.message);   // e.g. "You have already reported this post"
+        }
     }
 
     if (!post){
@@ -114,9 +138,24 @@ function PostPage(){
                 </form>
 
                 {!isOwner && (
-                    <button onClick={handleReport} className="px-4 py-1.5 rounded-full bg-rose-100 border border-rose-300 text-rose-700 text-sm font-medium hover:bg-rose-200">
-                        Report Post
-                    </button>
+                    <form onSubmit={handleReport} className="flex flex-col gap-2 mt-4">
+                        <label htmlFor="report-reason" className="text-sm font-medium text-muse-dark">Report this post</label>
+                        <div className="flex gap-2">
+                            <select
+                                id="report-reason"
+                                value={selectedReason}
+                                onChange={(e) => setSelectedReason(e.target.value)}
+                                className="flex-1 px-4 py-2 rounded-lg border border-muse-pink/50 bg-white text-muse-dark"
+                            >
+                                <option value="">Choose a reason...</option>
+                                {reasons.map(r => <option key={r._id} value={r.reason}>{r.reason}</option>)}
+                            </select>
+                            <button type="submit" className="px-4 py-1.5 rounded-full bg-rose-100 border border-rose-300 text-rose-700 text-sm font-medium hover:bg-rose-200">
+                                Report
+                            </button>
+                        </div>
+                        {reportMessage && <p className="text-sm text-muse-dark/70">{reportMessage}</p>}
+                    </form>
                 )}
             </div>
         </div>

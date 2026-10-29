@@ -271,15 +271,45 @@ app.post("/api/posts/:id/comments", async (req, res) => {
     }
 });
 
+// the predefined reasons a user can choose from (admins will add to this list later)
+app.get("/api/reasons", async (req, res) => {
+    try {
+        const db = getDB();
+        const reasons = await db.collection("reasons").find().toArray();
+        res.json(reasons);
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching reasons", error: err.message });
+    }
+});
+
+// replace your old /api/posts/:id/report route with this one
 app.post("/api/posts/:id/report", async (req, res) => {
     try {
         const db = getDB();
-        const post = await db.collection("posts").findOneAndUpdate(
-            { _id: new ObjectId(req.params.id) },
-            { $inc: { reportCount: 1 } },
+        const postId = new ObjectId(req.params.id);
+        const userId = new ObjectId(req.body.userId);
+
+        const post = await db.collection("posts").findOne({ _id: postId });
+        if (!post) {
+            return res.status(404).json({ message: "Post not found" });
+        }
+        if (post.userId.equals(userId)) {                       // the spec says you can't report your own post
+            return res.status(400).json({ message: "You cannot report your own post" });
+        }
+        const alreadyReported = (post.reports || []).some(r => r.userId.equals(userId));
+        if (alreadyReported) {                                  // one report per person, so nobody can hide a post alone
+            return res.status(400).json({ message: "You have already reported this post" });
+        }
+
+        const updated = await db.collection("posts").findOneAndUpdate(
+            { _id: postId },
+            {
+                $push: { reports: { userId, reason: req.body.reason, createdAt: new Date() } },   // keeps WHO and WHY, for the admin list
+                $inc: { reportCount: 1 }                                                          // the number the feed checks
+            },
             { returnDocument: "after" }
         );
-        res.json(post);
+        res.json(updated);
     } catch (err) {
         res.status(500).json({ message: "Error reporting this post", error: err.message });
     }
