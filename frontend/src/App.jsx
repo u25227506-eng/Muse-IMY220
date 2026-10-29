@@ -4,16 +4,17 @@ import Home from "./pages/Home";
 import ProfilePage from "./pages/ProfilePage";
 import PostPage from "./pages/PostPage";
 import AlbumPage from "./pages/AlbumPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App(){
   return(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Splash />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/profile/:id" element={<ProfilePage />} />
-        <Route path="/post/:id" element={<PostPage />} />
-        <Route path="/album/:id" element={<AlbumPage />} />
+        <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+        <Route path="/profile/:id" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+        <Route path="/post/:id" element={<ProtectedRoute><PostPage /></ProtectedRoute>} />
+        <Route path="/album/:id" element={<ProtectedRoute><AlbumPage /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

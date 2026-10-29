@@ -1,7 +1,11 @@
 import LoginForm from "../components/LoginForm";
 import SignupForm from "../components/SignupForm";
+import { Navigate } from "react-router-dom";
 
 function Splash(){
+    if (localStorage.getItem("museUser")) { 
+        return <Navigate to="/home" replace />; 
+    }
     return(
         <div className="min-h-screen flex flex-col items-center justify-center gap-8 bg-gradient-to-br from-muse-cream via-muse-pink/30 to-muse-mauve/40 px-4 py-10">
             <h1 className="font-display text-5xl font-bold text-muse-dark tracking-wide">Muse</h1>

@@ -8,6 +8,8 @@ function SignupForm(){
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [errors, setErrors] = useState({});
+    const inputClass = "px-4 py-2 rounded-lg border border-muse-pink/50 focus:outline-none focus:ring-2 focus:ring-muse-mauve bg-muse-cream";
+    const labelClass = "text-sm font-medium text-muse-dark";
 
     function validate(){
         const newErrors = {};
@@ -37,43 +39,28 @@ function SignupForm(){
         }
     }
 
-    return(
+    return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-3 bg-white/60 backdrop-blur-sm p-6 rounded-2xl shadow-sm w-full max-w-sm">
             <h2 className="font-display text-xl text-muse-dark mb-1">Sign Up</h2>
-            <input
-                type="text"
-                placeholder="username"
-                value={username}
-                onChange={(e) =>setUsername(e.target.value)}
-                className="px-4 py-2 rounded-lg border border-muse-pink/50 focus:outline-none focus:ring-2 focus:ring-muse-mauve bg-muse-cream"
-            />
+
+            <label htmlFor="signup-username" className={labelClass}>Username</label>
+            <input id="signup-username" type="text" placeholder="username" value={username}
+                onChange={(e) => setUsername(e.target.value)} className={inputClass} />
             {errors.username && <p className="text-sm text-rose-500">{errors.username}</p>}
 
-            <input
-                type="email"
-                placeholder="email"
-                value={email}
-                onChange={(e) =>setEmail(e.target.value)}
-                className="px-4 py-2 rounded-lg border border-muse-pink/50 focus:outline-none focus:ring-2 focus:ring-muse-mauve bg-muse-cream"
-            />
+            <label htmlFor="signup-email" className={labelClass}>Email</label>
+            <input id="signup-email" type="email" placeholder="email" value={email}
+                onChange={(e) => setEmail(e.target.value)} className={inputClass} />
             {errors.email && <p className="text-sm text-rose-500">{errors.email}</p>}
 
-            <input
-                type="password"
-                placeholder="password"
-                value={password}
-                onChange={(e) =>setPassword(e.target.value)}
-                className="px-4 py-2 rounded-lg border border-muse-pink/50 focus:outline-none focus:ring-2 focus:ring-muse-mauve bg-muse-cream"
-            />
+            <label htmlFor="signup-password" className={labelClass}>Password</label>
+            <input id="signup-password" type="password" placeholder="password" value={password}
+                onChange={(e) => setPassword(e.target.value)} className={inputClass} />
             {errors.password && <p className="text-sm text-rose-500">{errors.password}</p>}
 
-            <input
-                type="password"
-                placeholder="confirm password"
-                value={confirmPassword}
-                onChange={(e) =>setConfirmPassword(e.target.value)}
-                className="px-4 py-2 rounded-lg border border-muse-pink/50 focus:outline-none focus:ring-2 focus:ring-muse-mauve bg-muse-cream"
-            />
+            <label htmlFor="signup-confirm" className={labelClass}>Confirm password</label>
+            <input id="signup-confirm" type="password" placeholder="confirm password" value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)} className={inputClass} />
             {errors.confirmPassword && <p className="text-sm text-rose-500">{errors.confirmPassword}</p>}
             {errors.form && <p className="text-sm text-rose-500">{errors.form}</p>}
 
