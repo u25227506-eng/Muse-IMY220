@@ -105,6 +105,7 @@ function PostPage(){
     }
 
     const isOwner = currentUser && currentUser._id === post.userId;
+    const canManage = isOwner || currentUser?.isAdmin;   // admins can edit and delete any post
 
     return (
         <div className="min-h-screen bg-muse-cream">
@@ -122,7 +123,7 @@ function PostPage(){
                     </p>
                 )}
                 
-                {isOwner && !editing && (
+                {canManage && !editing && (
                     <div className="flex gap-3 my-4">
                         <button onClick={() => setEditing(true)} className="px-4 py-1.5 rounded-full bg-white border border-muse-pink text-muse-dark text-sm font-medium hover:bg-muse-pink/20">
                             Edit Post
@@ -133,7 +134,7 @@ function PostPage(){
                     </div>
                 )}
 
-                {isOwner && editing && (
+                {canManage && editing && (
                     <EditPost post={post} onSave={() => {setEditing(false); loadPost(); }} />
                 )}
 

@@ -73,7 +73,8 @@ function ProfilePage(){
     const isFriend = profileUser.friends?.some(f => f._id === currentUser?._id);
     const requestPending = profileUser.friendRequests?.some(f => f._id === currentUser?._id);
     const theyRequestedYou = isOwnProfile && profileUser.friendRequests?.length > 0;
-    const canSeeAll = isOwnProfile || isFriend;   // only you and your friends see the full profile
+    const canSeeAll = isOwnProfile || isFriend || currentUser?.isAdmin;   // admins see every profile in full
+    const canEditProfile = isOwnProfile || currentUser?.isAdmin;          // admins can edit any account
     
     return (
         <div className="min-h-screen bg-muse-cream">
@@ -82,7 +83,7 @@ function ProfilePage(){
                 <Profile user={profileUser} showBio={canSeeAll} />
 
                 <div className="flex justify-center gap-3 mb-4">
-                    {isOwnProfile && !editing && (
+                    {canEditProfile && !editing && (
                         <button onClick={() => setEditing(true)} className="px-4 py-1.5 rounded-full bg-white border border-muse-pink text-muse-dark text-sm font-medium hover:bg-muse-pink/20">
                             Edit Profile
                         </button>
@@ -105,8 +106,11 @@ function ProfilePage(){
                     )}
                 </div>
 
-                {isOwnProfile && editing && (
-                    <EditProfile user={profileUser} onSave={(updated) => { setProfileUser(updated); setEditing(false); }} />
+                {canEditProfile && editing && (
+                    <EditProfile user={profileUser} onSave={(updated) => {
+                        setProfileUser({ ...profileUser, username: updated.username, bio: updated.bio });
+                        setEditing(false);
+                    }} />
                 )}
 
                 {theyRequestedYou && profileUser.friendRequests.map(req => (

@@ -27,8 +27,8 @@ function AlbumPage() {
 
     useEffect(() => { loadAlbum(); }, [id]);
 
-    const isOwner = currentUser && album && currentUser._id === album.userId;
-
+    const isOwner = currentUser && album && (currentUser._id === album.userId || currentUser.isAdmin);   // admins manage every album
+    
     async function handleSaveEdit(e) {
         e.preventDefault();
         await fetch(`http://localhost:5000/api/albums/${id}`, {
