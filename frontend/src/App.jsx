@@ -5,6 +5,7 @@ import ProfilePage from "./pages/ProfilePage";
 import PostPage from "./pages/PostPage";
 import AlbumPage from "./pages/AlbumPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import SearchPage from "./pages/SearchPage";
 
 function App(){
   return(
@@ -15,6 +16,7 @@ function App(){
         <Route path="/profile/:id" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="/post/:id" element={<ProtectedRoute><PostPage /></ProtectedRoute>} />
         <Route path="/album/:id" element={<ProtectedRoute><AlbumPage /></ProtectedRoute>} />
+        <Route path="/search" element={<ProtectedRoute><SearchPage /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

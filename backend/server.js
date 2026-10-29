@@ -282,6 +282,42 @@ app.get("/api/reasons", async (req, res) => {
     }
 });
 
+// search users, posts and albums with one search term
+app.get("/api/search", async (req, res) => {
+    try {
+        const db = getDB();
+        const q = (req.query.q || "").trim().replace(/^#/, "");   // "#film" and "film" search the same thing
+        if (q === "") {
+            return res.json({ users: [], posts: [], albums: [] });
+        }
+
+        // escape characters that mean something in a regular expression, so the term is searched literally
+        const safe = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        // $regex with no anchors matches PARTIAL words; "i" ignores upper/lower case
+        const match = { $regex: safe, $options: "i" };
+
+        // users: by username or email; only the username and picture are sent back (no email or password)
+        const users = await db.collection("users")
+            .find({ $or: [{ username: match }, { email: match }] }, { projection: { username: 1, avatarUrl: 1 } })
+            .toArray();
+
+        // posts: by description or hashtag, newest first
+        const posts = await db.collection("posts")
+            .find({ $or: [{ description: match }, { hashtags: match }] })
+            .sort({ createdAt: -1 })
+            .toArray();
+
+        // albums: by name, description or hashtag
+        const albums = await db.collection("albums")
+            .find({ $or: [{ name: match }, { description: match }, { hashtags: match }] })
+            .toArray();
+
+        res.json({ users, posts, albums });
+    } catch (err) {
+        res.status(500).json({ message: "Error searching", error: err.message });
+    }
+});
+
 // replace your old /api/posts/:id/report route with this one
 app.post("/api/posts/:id/report", async (req, res) => {
     try {

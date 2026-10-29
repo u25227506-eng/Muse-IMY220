@@ -1,5 +1,7 @@
 import {useState} from "react";
 import {Link} from "react-router-dom";
+import Hashtags from "./Hashtags";
+
 
 function PostPreview({post}){
     const [showAnyway, setShowAnyway] = useState(false);
@@ -27,6 +29,7 @@ function PostPreview({post}){
                 className="rounded-xl w-full max-h-80 object-cover"
             />
             <p className="text-muse-dark">{post.description}</p>
+            <Hashtags tags={post.hashtags} />
             <Link to={`/post/${post._id}`} className="text-sm text-muse-mauve font-medium hover:underline w-fit">
                 View Post
             </Link>

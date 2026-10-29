@@ -1,5 +1,6 @@
 import Image from "./Image";
 import Comments from "./Comments";
+import Hashtags from "./Hashtags";
 
 function Post({post}){
     return (
@@ -7,7 +8,7 @@ function Post({post}){
             <h3 className="font-display text-muse-mauve font-semibold mb-2">{post.username}</h3>
             <Image src={`http://localhost:5000${post.imageUrl}`} alt={post.description} />
             <p className="text-muse-dark mt-3">{post.description}</p>
-            <p className="text-sm text-muse-mauve mt-1">{post.hashtags?.map(h => "#" + h).join(" ")}</p>
+            <Hashtags tags={post.hashtags} />
             <Comments comments={post.comments}/>
         </div>
     );
