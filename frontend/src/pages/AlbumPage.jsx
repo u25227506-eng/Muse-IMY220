@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navigation from "../components/Navigation";
 import PostPreview from "../components/PostPreview";
+import Hashtags from "../components/Hashtags";
 
 function AlbumPage() {
     const { id } = useParams();
@@ -11,6 +12,7 @@ function AlbumPage() {
     const [editing, setEditing] = useState(false);
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
+    const [hashtags, setHashtags] = useState("");      // the edit box holds the tags as one comma-separated string
 
     function loadAlbum() {
         fetch(`http://localhost:5000/api/albums/${id}`)
@@ -19,6 +21,7 @@ function AlbumPage() {
                 setAlbum(data);
                 setName(data.name);
                 setDescription(data.description);
+                setHashtags((data.hashtags || []).join(", "));   // list to text, e.g. "film, analogue"
             });
     }
 
@@ -31,7 +34,11 @@ function AlbumPage() {
         await fetch(`http://localhost:5000/api/albums/${id}`, {
             method: "PUT",
             headers: { "Content-type": "application/json" },
-            body: JSON.stringify({ name, description, hashtags: album.hashtags }),
+            body: JSON.stringify({
+                name,
+                description,
+                hashtags: hashtags.split(",").map(h => h.trim()).filter(h => h !== ""),   // text back to a list
+            }),
         });
         setEditing(false);
         loadAlbum();
@@ -54,20 +61,32 @@ function AlbumPage() {
             <Navigation />
             <div className="max-w-2xl mx-auto px-4 py-6">
                 {!editing ? (
-                    <div className="mb-4">
+                    <div className="mb-4 flex flex-col gap-2">
                         <h2 className="font-display text-2xl font-bold text-muse-dark">{album.name}</h2>
                         <p className="text-muse-dark/70">{album.description}</p>
+                        <Hashtags tags={album.hashtags} />
                     </div>
                 ) : (
                     <form onSubmit={handleSaveEdit} className="flex flex-col gap-3 bg-white rounded-2xl shadow-sm p-5 mb-4">
+                        <label htmlFor="album-edit-name" className="text-sm font-medium text-muse-dark">Album name</label>
                         <input
+                            id="album-edit-name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             className="px-4 py-2 rounded-lg border border-muse-pink/50 bg-muse-cream focus:outline-none focus:ring-2 focus:ring-muse-mauve"
                         />
+                        <label htmlFor="album-edit-description" className="text-sm font-medium text-muse-dark">Description</label>
                         <textarea
+                            id="album-edit-description"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
+                            className="px-4 py-2 rounded-lg border border-muse-pink/50 bg-muse-cream focus:outline-none focus:ring-2 focus:ring-muse-mauve"
+                        />
+                        <label htmlFor="album-edit-hashtags" className="text-sm font-medium text-muse-dark">Hashtags (comma separated)</label>
+                        <input
+                            id="album-edit-hashtags"
+                            value={hashtags}
+                            onChange={(e) => setHashtags(e.target.value)}
                             className="px-4 py-2 rounded-lg border border-muse-pink/50 bg-muse-cream focus:outline-none focus:ring-2 focus:ring-muse-mauve"
                         />
                         <button type="submit" className="px-4 py-2 rounded-full bg-muse-mauve text-muse-cream font-medium hover:bg-muse-dark transition-colors">
