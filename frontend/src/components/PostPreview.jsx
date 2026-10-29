@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {Link} from "react-router-dom";
 import Hashtags from "./Hashtags";
-
+import Comments from "./Comments";
 
 function PostPreview({post}){
     const [showAnyway, setShowAnyway] = useState(false);
@@ -30,6 +30,7 @@ function PostPreview({post}){
             />
             <p className="text-muse-dark">{post.description}</p>
             <Hashtags tags={post.hashtags} />
+            <Comments comments={post.comments} limit={2} moreLink={`/post/${post._id}`} />
             <Link to={`/post/${post._id}`} className="text-sm text-muse-mauve font-medium hover:underline w-fit">
                 View Post
             </Link>
