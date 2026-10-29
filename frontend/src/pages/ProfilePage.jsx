@@ -73,12 +73,13 @@ function ProfilePage(){
     const isFriend = profileUser.friends?.some(f => f._id === currentUser?._id);
     const requestPending = profileUser.friendRequests?.some(f => f._id === currentUser?._id);
     const theyRequestedYou = isOwnProfile && profileUser.friendRequests?.length > 0;
-
+    const canSeeAll = isOwnProfile || isFriend;   // only you and your friends see the full profile
+    
     return (
         <div className="min-h-screen bg-muse-cream">
             <Navigation />
             <div className="max-w-2xl mx-auto px-4 py-6">
-                <Profile user={profileUser} />
+                <Profile user={profileUser} showBio={canSeeAll} />
 
                 <div className="flex justify-center gap-3 mb-4">
                     {isOwnProfile && !editing && (
@@ -128,19 +129,27 @@ function ProfilePage(){
                     </div>
                 )}
 
-                <div className="mb-6">
-                    <h4 className="font-display text-lg text-muse-dark mb-3">Posts</h4>
-                    <Feed posts={posts} />
-                </div>
+                {canSeeAll ? (
+                    <>
+                        <div className="mb-6">
+                            <h4 className="font-display text-lg text-muse-dark mb-3">Posts</h4>
+                            <Feed posts={posts} />
+                        </div>
 
-                <div className="mb-6">
-                    <h4 className="font-display text-lg text-muse-dark mb-2">Albums</h4>
-                    <div className="flex flex-col gap-2 mb-3">
-                        {albums.map((album) => (
-                            <AlbumPreview key={album._id} album={album} />
-                        ))}
-                    </div>
-                </div>
+                        <div className="mb-6">
+                            <h4 className="font-display text-lg text-muse-dark mb-2">Albums</h4>
+                            <div className="flex flex-col gap-2 mb-3">
+                                {albums.map((album) => (
+                                    <AlbumPreview key={album._id} album={album} />
+                                ))}
+                            </div>
+                        </div>
+                    </>
+                ) : (
+                    <p className="text-center text-muse-dark/60 py-6">
+                        Become friends with {profileUser.username} to see their bio, posts and albums.
+                    </p>
+                )}
 
                 {isOwnProfile && (
                     <div className="flex flex-col sm:flex-row gap-4 items-start">
