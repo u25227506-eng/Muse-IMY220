@@ -1,101 +1,86 @@
 import {useState, useEffect} from "react";
+import { useParams} from "react-router-dom";
 import Navigation from "../components/Navigation";
-import Post from "../components/Post";
-import EditPost from "../components/EditPost";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import Profile from "../components/Profile";
+import Friend from "../components/Friend";
+import CreatePost from "../components/CreatePost";
+import EditProfile from "../components/EditProfile";
+import Feed from "../components/Feed";
+import CreateAlbum from "../components/CreateAlbum";
+import AlbumPreview from "../components/AlbumPreview";
+import DropZone from "../components/DropZone";
 
-function PostPage(){
+function ProfilePage(){
     const {id} = useParams();
-    const navigate = useNavigate();
     const currentUser = JSON.parse(localStorage.getItem("museUser"));
-    const [post, setPost] = useState(null);
+    const [profileUser, setProfileUser] = useState(null);
+    const [posts, setPosts] = useState([]);
     const [editing, setEditing] = useState(false);
-    const [commentText, setCommentText] = useState("");
     const [albums, setAlbums] = useState([]);
-    const [reasons, setReasons] = useState([]);
-    const [selectedReason, setSelectedReason] = useState("");
-    const [reportMessage, setReportMessage] = useState("");
-    const [postAlbums, setPostAlbums] = useState([]);
+    const [pictureMessage, setPictureMessage] = useState("");
 
-    function loadPost(){
-        fetch(`http://localhost:5000/api/posts/${id}`)
-            .then(res => res.json())
-            .then(data => setPost(data));
-    }
-
-    useEffect(() => {loadPost(); }, [id]);
-    useEffect(() => {
-        if (currentUser) {
-            fetch(`http://localhost:5000/api/users/${currentUser._id}/albums`)
-                .then(res => res.json())
-                .then(data => setAlbums(data));
-        }
-    }, [currentUser]);
+    const isOwnProfile = currentUser && currentUser._id === id;
 
     useEffect(() => {
-        fetch("http://localhost:5000/api/reasons")
+        fetch(`http://localhost:5000/api/users/${id}`)
             .then(res => res.json())
-            .then(data => setReasons(data));
-    }, []);
+            .then(data => { if (data && data._id) setProfileUser(data); });
 
-    function loadPostAlbums(){
-        fetch(`http://localhost:5000/api/posts/${id}/albums`)
+        fetch(`http://localhost:5000/api/users/${id}/posts`)
             .then(res => res.json())
-            .then(data => setPostAlbums(data));
-    }
+            .then(data => { if (Array.isArray(data)) setPosts(data); });
 
-    async function handleAddToAlbum(e){
-        const albumId = e.target.value;
-        if (!albumId) return;
-        await fetch(`http://localhost:5000/api/albums/${albumId}/posts`, {
+        fetch(`http://localhost:5000/api/users/${id}/albums`)
+            .then(res => res.json())
+            .then(data => { if (Array.isArray(data)) setAlbums(data); });
+    }, [id]);
+
+    async function sendFriendRequest(){
+        await fetch(`http://localhost:5000/api/users/${id}/friend-request`, {
             method: "POST",
             headers: {"Content-type": "application/json"},
-            body: JSON.stringify({ postId: id }),
+            body: JSON.stringify({fromUserId: currentUser._id}),
         });
-        e.target.value = "";      // put the dropdown back to "Add to album..."
-        loadPostAlbums();         // refresh the "In album" line straight away
+        const res = await fetch(`http://localhost:5000/api/users/${id}`);
+        setProfileUser(await res.json());
     }
 
-    useEffect(() => { loadPostAlbums(); }, [id]);
-
-    async function handleAddComment(e){
-        e.preventDefault();
-        if(!commentText.trim()) return;
-        await fetch(`http://localhost:5000/api/posts/${id}/comments`, {
+    async function acceptFriendRequest(friendId){
+        await fetch(`http://localhost:5000/api/users/${currentUser._id}/accept-friend`, {
             method: "POST",
             headers: {"Content-type": "application/json"},
-            body: JSON.stringify({userId: currentUser._id, username: currentUser.username, text: commentText}),
+            body: JSON.stringify({friendId}),
         });
-        setCommentText("");
-        loadPost();
+        const res = await fetch(`http://localhost:5000/api/users/${id}`);
+        setProfileUser(await res.json());
     }
 
-    async function handleDelete(){
-        await fetch(`http://localhost:5000/api/posts/${id}`, {method: "DELETE"});
-        navigate("/home");
+    async function handleUnfriend(){
+        await fetch(`http://localhost:5000/api/users/${currentUser._id}/unfriend/${id}`, {
+            method: "DELETE",
+        });
+        const res = await fetch(`http://localhost:5000/api/users/${id}`);
+        setProfileUser(await res.json());
     }
 
-    async function handleReport(e){
-        e.preventDefault();
-        if (!selectedReason){
-            setReportMessage("Please choose a reason first.");
-            return;
-        }
-        const response = await fetch(`http://localhost:5000/api/posts/${id}/report`, {
-            method: "POST",
-            headers: {"Content-type": "application/json"},
-            body: JSON.stringify({ userId: currentUser._id, reason: selectedReason }),
+    // uploads the chosen or dropped picture straight away
+    async function handleAvatarFile(file){
+        const formData = new FormData();
+        formData.append("avatar", file);
+        const response = await fetch(`http://localhost:5000/api/users/${id}/avatar`, {
+            method: "PUT",
+            body: formData,
         });
         const data = await response.json();
         if (response.ok){
-            setReportMessage("Thanks, your report was sent.");
-            setSelectedReason("");
+            setProfileUser({ ...profileUser, avatarUrl: data.avatarUrl });
+            setPictureMessage("Profile picture updated.");
         } else {
-            setReportMessage(data.message);   // e.g. "You have already reported this post"
+            setPictureMessage(data.message || "Could not update the picture.");
         }
     }
 
-    if (!post){
+    if (!profileUser){
         return (
             <div className="min-h-screen bg-muse-cream">
                 <Navigation />
@@ -104,88 +89,107 @@ function PostPage(){
         );
     }
 
-    const isOwner = currentUser && currentUser._id === post.userId;
-    const canManage = isOwner || currentUser?.isAdmin;   // admins can edit and delete any post
+    const isFriend = profileUser.friends?.some(f => f._id === currentUser?._id);
+    const requestPending = profileUser.friendRequests?.some(f => f._id === currentUser?._id);
+    const theyRequestedYou = isOwnProfile && profileUser.friendRequests?.length > 0;
+    const canSeeAll = isOwnProfile || isFriend || currentUser?.isAdmin;   // admins see every profile in full
+    const canEditProfile = isOwnProfile || currentUser?.isAdmin;          // admins can edit any account
 
     return (
         <div className="min-h-screen bg-muse-cream">
             <Navigation />
             <div className="max-w-2xl mx-auto px-4 py-6">
-                <Post post={post} />
-                {postAlbums.length > 0 && (
-                    <p className="text-sm text-muse-dark/70 mt-3">
-                        In album: {postAlbums.map((a, i) => (
-                            <span key={a._id}>
-                                <Link to={`/album/${a._id}`} className="text-muse-mauve font-medium hover:underline">{a.name}</Link>
-                                {i < postAlbums.length - 1 ? ", " : ""}
-                            </span>
-                        ))}
-                    </p>
-                )}
-                
-                {canManage && !editing && (
-                    <div className="flex gap-3 my-4">
+                <Profile user={profileUser} showBio={canSeeAll} />
+
+                <div className="flex justify-center gap-3 mb-4">
+                    {canEditProfile && !editing && (
                         <button onClick={() => setEditing(true)} className="px-4 py-1.5 rounded-full bg-white border border-muse-pink text-muse-dark text-sm font-medium hover:bg-muse-pink/20">
-                            Edit Post
+                            Edit Profile
                         </button>
-                        <button onClick={handleDelete} className="px-4 py-1.5 rounded-full bg-rose-100 border border-rose-300 text-rose-700 text-sm font-medium hover:bg-rose-200">
-                            Delete Post
+                    )}
+                    {!isOwnProfile && !isFriend && !requestPending && (
+                        <button onClick={sendFriendRequest} className="px-4 py-1.5 rounded-full bg-muse-mauve text-muse-cream text-sm font-medium hover:bg-muse-dark">
+                            Add Friend
                         </button>
+                    )}
+                    {!isOwnProfile && requestPending && (
+                        <p className="text-sm text-muse-dark/60 self-center">Friend request sent</p>
+                    )}
+                    {!isOwnProfile && isFriend && (
+                        <>
+                            <span className="text-sm text-muse-dark/60 self-center">Friends</span>
+                            <button onClick={handleUnfriend} className="px-4 py-1.5 rounded-full bg-white border border-muse-pink text-muse-dark text-sm font-medium hover:bg-muse-pink/20">
+                                Unfriend
+                            </button>
+                        </>
+                    )}
+                </div>
+
+                {canEditProfile && (
+                    <div className="max-w-sm mx-auto mb-4">
+                        <DropZone id="avatar-input" file={null} onFile={handleAvatarFile} label="Change profile picture: drag one here, or click to choose" />
+                        {pictureMessage && <p className="text-sm text-muse-dark/70 text-center mt-2">{pictureMessage}</p>}
                     </div>
                 )}
 
-                {canManage && editing && (
-                    <EditPost post={post} onSave={() => {setEditing(false); loadPost(); }} />
+                {canEditProfile && editing && (
+                    <EditProfile user={profileUser} onSave={(updated) => {
+                        setProfileUser({ ...profileUser, username: updated.username, bio: updated.bio });
+                        setEditing(false);
+                    }} />
                 )}
 
-                {isOwner && albums.length > 0 && (
-                    <select
-                        onChange={handleAddToAlbum}
-                        className="my-3 px-4 py-2 rounded-lg border border-muse-pink/50 bg-white text-muse-dark"
-                    >
-                        <option value="">Add to album...</option>
-                        {albums.map(a => <option key={a._id} value={a._id}>{a.name}</option>)}
-                    </select>
-                )}
+                {theyRequestedYou && profileUser.friendRequests.map(req => (
+                    <div key={req._id} className="flex items-center justify-between bg-white rounded-xl shadow-sm p-3 mb-3">
+                        <p className="text-muse-dark">{req.username} wants to be friends</p>
+                        <button onClick={() => acceptFriendRequest(req._id)} className="px-4 py-1 rounded-full bg-muse-mauve text-muse-cream text-sm font-medium hover:bg-muse-dark">
+                            Accept
+                        </button>
+                    </div>
+                ))}
 
-                <form onSubmit={handleAddComment} className="flex gap-2 my-4">
-                    <label htmlFor="comment-input" className="sr-only">Add a comment</label>
-                    <input
-                        id="comment-input"
-                        type="text"
-                        placeholder="Add a comment..."
-                        value={commentText}
-                        onChange={(e) => setCommentText(e.target.value)}
-                        className="flex-1 px-4 py-2 rounded-full border border-muse-pink/50 bg-white focus:outline-none focus:ring-2 focus:ring-muse-mauve"
-                    />
-                    <button type="submit" className="px-4 py-2 rounded-full bg-muse-mauve text-muse-cream text-sm font-medium hover:bg-muse-dark">
-                        Comment
-                    </button>
-                </form>
-
-                {!isOwner && (
-                    <form onSubmit={handleReport} className="flex flex-col gap-2 mt-4">
-                        <label htmlFor="report-reason" className="text-sm font-medium text-muse-dark">Report this post</label>
-                        <div className="flex gap-2">
-                            <select
-                                id="report-reason"
-                                value={selectedReason}
-                                onChange={(e) => setSelectedReason(e.target.value)}
-                                className="flex-1 px-4 py-2 rounded-lg border border-muse-pink/50 bg-white text-muse-dark"
-                            >
-                                <option value="">Choose a reason...</option>
-                                {reasons.map(r => <option key={r._id} value={r.reason}>{r.reason}</option>)}
-                            </select>
-                            <button type="submit" className="px-4 py-1.5 rounded-full bg-rose-100 border border-rose-300 text-rose-700 text-sm font-medium hover:bg-rose-200">
-                                Report
-                            </button>
+                {(isOwnProfile || isFriend) && (
+                    <div className="mb-6">
+                        <h4 className="font-display text-lg text-muse-dark mb-2">Friends</h4>
+                        <div className="flex flex-wrap gap-2">
+                            {profileUser.friends?.map((friend) => (
+                                <Friend key={friend._id} friend={friend} />
+                            ))}
                         </div>
-                        {reportMessage && <p className="text-sm text-muse-dark/70">{reportMessage}</p>}
-                    </form>
+                    </div>
+                )}
+
+                {canSeeAll ? (
+                    <>
+                        <div className="mb-6">
+                            <h4 className="font-display text-lg text-muse-dark mb-3">Posts</h4>
+                            <Feed posts={posts} />
+                        </div>
+
+                        <div className="mb-6">
+                            <h4 className="font-display text-lg text-muse-dark mb-2">Albums</h4>
+                            <div className="flex flex-col gap-2 mb-3">
+                                {albums.map((album) => (
+                                    <AlbumPreview key={album._id} album={album} />
+                                ))}
+                            </div>
+                        </div>
+                    </>
+                ) : (
+                    <p className="text-center text-muse-dark/60 py-6">
+                        Become friends with {profileUser.username} to see their bio, posts and albums.
+                    </p>
+                )}
+
+                {isOwnProfile && (
+                    <div className="flex flex-col sm:flex-row gap-4 items-start">
+                        <CreateAlbum userId={currentUser._id} onCreated={(newAlbum) => setAlbums([...albums, newAlbum])} />
+                        <CreatePost />
+                    </div>
                 )}
             </div>
         </div>
     );
 }
 
-export default PostPage;
+export default ProfilePage;

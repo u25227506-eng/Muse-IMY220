@@ -1,16 +1,19 @@
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
+import DropZone from "./DropZone";
 
 function CreatePost() {
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem("museUser"));
     const [description, setDescription] = useState("");
     const [hashtags, setHashtags] = useState("");
-    const [imageFile, setImageFile] = useState(null)
+    const [imageFile, setImageFile] = useState(null);
+    const [error, setError] = useState("");
 
     async function handleSubmit(e){
         e.preventDefault();
         if (!imageFile){
+            setError("Please choose a picture first.");
             return;
         }
 
@@ -29,7 +32,10 @@ function CreatePost() {
             setDescription("");
             setHashtags("");
             setImageFile(null);
+            setError("");
             navigate("/home");
+        } else {
+            setError("Could not create the post. Please try again.");
         }
     }
 
@@ -37,15 +43,7 @@ function CreatePost() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-3 bg-white rounded-2xl shadow-sm p-5 max-w-sm mx-auto my-4">
             <h3 className="font-display text-lg text-muse-dark">New Post</h3>
 
-            <label className="px-4 py-2 rounded-full bg-muse-pink/40 text-muse-dark text-sm font-medium text-center cursor-pointer hover:bg-muse-pink/60 transition-colors">
-                {imageFile ? imageFile.name : "Choose Image"}
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setImageFile(e.target.files[0])}
-                    className="hidden"
-                />
-            </label>
+            <DropZone id="create-post-image" file={imageFile} onFile={setImageFile} label="Drag a photo here, or click to choose" />
 
             <label htmlFor="create-post-caption" className="text-sm font-medium text-muse-dark">Caption</label>
             <textarea
@@ -65,6 +63,8 @@ function CreatePost() {
                 onChange={(e) => setHashtags(e.target.value)}
                 className="px-4 py-2 rounded-lg border border-muse-pink/50 bg-muse-cream focus:outline-none focus:ring-2 focus:ring-muse-mauve"
             />
+
+            {error && <p className="text-sm text-rose-500">{error}</p>}
 
             <button type="submit" className="px-4 py-2 rounded-full bg-muse-mauve text-muse-cream font-medium hover:bg-muse-dark transition-colors">
                 Post

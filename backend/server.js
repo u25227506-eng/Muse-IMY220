@@ -611,6 +611,23 @@ app.delete("/api/admin/users/:id", async (req, res) => {
     }
 });
 
+// change a profile picture; multer saves the file exactly like a post image
+app.put("/api/users/:id/avatar", upload.single("avatar"), async (req, res) => {
+    try {
+        const db = getDB();
+        if (!req.file) {
+            return res.status(400).json({ message: "Please choose a picture" });
+        }
+        const avatarUrl = `/uploads/${req.file.filename}`;
+        await db.collection("users").updateOne(
+            { _id: new ObjectId(req.params.id) },
+            { $set: { avatarUrl } }
+        );
+        res.json({ avatarUrl });
+    } catch (err) {
+        res.status(500).json({ message: "Error changing picture", error: err.message });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
