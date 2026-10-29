@@ -5,10 +5,9 @@ function SearchInput(){
     const navigate = useNavigate();
     const location = useLocation();
     const [searchParams] = useSearchParams();
-    const q = searchParams.get("q") || "";            // the current search term from the URL ("" on other pages)
+    const q = searchParams.get("q") || "";         
     const [searchTerm, setSearchTerm] = useState(q);
 
-    // when the URL's term changes (e.g. you click a hashtag), the box shows the new term
     useEffect(() => {
         setSearchTerm(q);
     }, [q]);
@@ -16,7 +15,6 @@ function SearchInput(){
     function handleChange(e){
         const value = e.target.value;
         setSearchTerm(value);
-        // clearing the box while on the results page takes you back to the feed
         if (value === "" && location.pathname === "/search"){
             navigate("/home");
         }

@@ -32,7 +32,7 @@ function placeholderSrc(user) {
 function Avatar({ user, className = "w-10 h-10" }) {
     const src = user.avatarUrl
         ? `http://localhost:5000${user.avatarUrl}`   // an uploaded picture
-        : placeholderSrc(user);                      // otherwise a generated one
+        : placeholderSrc(user);                      // otherwise a generated placeholder
     return <img src={src} alt={user.username} className={`${className} rounded-full object-cover`} />;
 }
 

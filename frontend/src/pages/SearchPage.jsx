@@ -8,7 +8,7 @@ import Feed from "../components/Feed";
 
 function SearchPage(){
     const [searchParams] = useSearchParams();
-    const q = searchParams.get("q") || "";          // the ?q=... part of the URL
+    const q = searchParams.get("q") || "";  // the ?q=... part of the URL
     const [results, setResults] = useState(null);
 
     useEffect(() => {

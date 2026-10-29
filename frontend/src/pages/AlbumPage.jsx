@@ -12,7 +12,7 @@ function AlbumPage() {
     const [editing, setEditing] = useState(false);
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
-    const [hashtags, setHashtags] = useState("");      // the edit box holds the tags as one comma-separated string
+    const [hashtags, setHashtags] = useState("");      
 
     function loadAlbum() {
         fetch(`http://localhost:5000/api/albums/${id}`)
@@ -21,13 +21,13 @@ function AlbumPage() {
                 setAlbum(data);
                 setName(data.name);
                 setDescription(data.description);
-                setHashtags((data.hashtags || []).join(", "));   // list to text, e.g. "film, analogue"
+                setHashtags((data.hashtags || []).join(", "));   
             });
     }
 
     useEffect(() => { loadAlbum(); }, [id]);
 
-    const isOwner = currentUser && album && (currentUser._id === album.userId || currentUser.isAdmin);   // admins manage every album
+    const isOwner = currentUser && album && (currentUser._id === album.userId || currentUser.isAdmin);  //for admin
     
     async function handleSaveEdit(e) {
         e.preventDefault();
@@ -37,7 +37,7 @@ function AlbumPage() {
             body: JSON.stringify({
                 name,
                 description,
-                hashtags: hashtags.split(",").map(h => h.trim()).filter(h => h !== ""),   // text back to a list
+                hashtags: hashtags.split(",").map(h => h.trim()).filter(h => h !== ""),   
             }),
         });
         setEditing(false);

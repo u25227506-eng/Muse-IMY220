@@ -1,5 +1,5 @@
 import {useState, useEffect} from "react";
-import { useParams} from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Navigation from "../components/Navigation";
 import Profile from "../components/Profile";
 import Friend from "../components/Friend";
@@ -12,6 +12,8 @@ import DropZone from "../components/DropZone";
 
 function ProfilePage(){
     const {id} = useParams();
+    const navigate = useNavigate();
+    const [loadError, setLoadError] = useState("");
     const currentUser = JSON.parse(localStorage.getItem("museUser"));
     const [profileUser, setProfileUser] = useState(null);
     const [posts, setPosts] = useState([]);
@@ -22,10 +24,22 @@ function ProfilePage(){
     const isOwnProfile = currentUser && currentUser._id === id;
 
     useEffect(() => {
+        setLoadError("");
         fetch(`http://localhost:5000/api/users/${id}`)
-            .then(res => res.json())
-            .then(data => { if (data && data._id) setProfileUser(data); });
-
+            .then(res => {
+                if (res.status === 404 && currentUser && currentUser._id === id){
+                    localStorage.removeItem("museUser");   // the saved login points at an account that no longer exists
+                    navigate("/");
+                    return null;
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data && data._id) setProfileUser(data);
+                else if (data) setLoadError("This profile could not be found.");
+            })
+            .catch(() => setLoadError("Could not reach the server."));
+            
         fetch(`http://localhost:5000/api/users/${id}/posts`)
             .then(res => res.json())
             .then(data => { if (Array.isArray(data)) setPosts(data); });
@@ -84,7 +98,7 @@ function ProfilePage(){
         return (
             <div className="min-h-screen bg-muse-cream">
                 <Navigation />
-                <p className="text-center text-muse-dark py-8">Loading...</p>
+                <p className="text-center text-muse-dark py-8">{loadError || "Loading..."}</p>
             </div>
         );
     }

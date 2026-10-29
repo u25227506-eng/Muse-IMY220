@@ -278,7 +278,7 @@ app.post("/api/posts/:id/comments", async (req, res) => {
     }
 });
 
-// the predefined reasons a user can choose from (admins will add to this list later)
+//reaons for reporting
 app.get("/api/reasons", async (req, res) => {
     try {
         const db = getDB();
@@ -303,12 +303,12 @@ app.get("/api/search", async (req, res) => {
         // $regex with no anchors matches PARTIAL words; "i" ignores upper/lower case
         const match = { $regex: safe, $options: "i" };
 
-        // users: by username or email; only the username and picture are sent back (no email or password)
+        //users: by username or email; only the username and picture are sent back (no email or password)
         const users = await db.collection("users")
             .find({ $or: [{ username: match }, { email: match }] }, { projection: { username: 1, avatarUrl: 1 } })
             .toArray();
 
-        // posts: by description or hashtag, newest first
+        //posts: by description or hashtag, newest first
         const posts = await db.collection("posts")
             .find({ $or: [{ description: match }, { hashtags: match }] })
             .sort({ createdAt: -1 })
@@ -325,12 +325,12 @@ app.get("/api/search", async (req, res) => {
     }
 });
 
-// which albums a post belongs to (shown on the post page)
+
 app.get("/api/posts/:id/albums", async (req, res) => {
     try {
         const db = getDB();
         const albums = await db.collection("albums")
-            .find({ posts: new ObjectId(req.params.id) }, { projection: { name: 1 } })   // matching an array field: true if the id is anywhere in the list
+            .find({ posts: new ObjectId(req.params.id) }, { projection: { name: 1 } })  
             .toArray();
         res.json(albums);
     } catch (err) {
@@ -339,7 +339,6 @@ app.get("/api/posts/:id/albums", async (req, res) => {
 });
 
 
-// replace your old /api/posts/:id/report route with this one
 app.post("/api/posts/:id/report", async (req, res) => {
     try {
         const db = getDB();
@@ -350,19 +349,19 @@ app.post("/api/posts/:id/report", async (req, res) => {
         if (!post) {
             return res.status(404).json({ message: "Post not found" });
         }
-        if (post.userId.equals(userId)) {                       // the spec says you can't report your own post
+        if (post.userId.equals(userId)) {                      
             return res.status(400).json({ message: "You cannot report your own post" });
         }
         const alreadyReported = (post.reports || []).some(r => r.userId.equals(userId));
-        if (alreadyReported) {                                  // one report per person, so nobody can hide a post alone
+        if (alreadyReported) {                                  
             return res.status(400).json({ message: "You have already reported this post" });
         }
 
         const updated = await db.collection("posts").findOneAndUpdate(
             { _id: postId },
             {
-                $push: { reports: { userId, reason: req.body.reason, createdAt: new Date() } },   // keeps WHO and WHY, for the admin list
-                $inc: { reportCount: 1 }                                                          // the number the feed checks
+                $push: { reports: { userId, reason: req.body.reason, createdAt: new Date() } },   
+                $inc: { reportCount: 1 }                                                         
             },
             { returnDocument: "after" }
         );
@@ -377,9 +376,9 @@ app.get("/api/users/:id/posts", async (req, res) => {
     try {
         const db = getDB();
         const posts = await db.collection("posts")
-            .find({ userId: new ObjectId(req.params.id) })   // ids are stored as ObjectId, so convert the URL text
-            .sort({ createdAt: -1 })                         // newest first
-            .toArray();                                      // find() gives a cursor, toArray() makes a list
+            .find({ userId: new ObjectId(req.params.id) })  
+            .sort({ createdAt: -1 })                        
+            .toArray();                                     
         res.json(posts);
     } catch (err) {
         res.status(500).json({ message: "Error fetching user posts", error: err.message });
@@ -394,9 +393,9 @@ app.get("/api/users/:id/feed", async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
-        const ids = [user._id, ...user.friends];             // the native driver has no user.id shortcut
+        const ids = [user._id, ...user.friends];           
         const posts = await db.collection("posts")
-            .find({ userId: { $in: ids } })                  // $in: match any id in the list
+            .find({ userId: { $in: ids } })                
             .sort({ createdAt: -1 })
             .toArray();
         res.json(posts);
@@ -498,7 +497,7 @@ app.delete("/api/albums/:id/posts/:postId", async (req, res) => {
         const db = getDB();
         const album = await db.collection("albums").findOneAndUpdate(
             { _id: new ObjectId(req.params.id) },
-            { $pull: { posts: new ObjectId(req.params.postId) } }, // remove it from the list
+            { $pull: { posts: new ObjectId(req.params.postId) } }, 
             { returnDocument: "after" }
         );
         res.json(album);
@@ -507,9 +506,9 @@ app.delete("/api/albums/:id/posts/:postId", async (req, res) => {
     }
 });
 
-// ===== ADMIN =====
+//ADMIN THINGS
 
-// all reported posts, most reported first (admin only)
+// all reported posts
 app.get("/api/admin/reported", async (req, res) => {
     try {
         const db = getDB();
@@ -517,7 +516,7 @@ app.get("/api/admin/reported", async (req, res) => {
             return res.status(403).json({ message: "Admins only" });
         }
         const posts = await db.collection("posts")
-            .find({ reportCount: { $gt: 0 } })      // $gt: greater than 0, so only posts that have reports
+            .find({ reportCount: { $gt: 0 } })      
             .sort({ reportCount: -1 })
             .toArray();
         res.json(posts);
@@ -526,7 +525,7 @@ app.get("/api/admin/reported", async (req, res) => {
     }
 });
 
-// the admin decides a post is fine: remove all its reports
+//managing reports
 app.post("/api/admin/posts/:id/dismiss-reports", async (req, res) => {
     try {
         const db = getDB();
@@ -543,7 +542,7 @@ app.post("/api/admin/posts/:id/dismiss-reports", async (req, res) => {
     }
 });
 
-// add a new report reason (admin only)
+//adding more report reasons
 app.post("/api/reasons", async (req, res) => {
     try {
         const db = getDB();
@@ -565,7 +564,7 @@ app.post("/api/reasons", async (req, res) => {
     }
 });
 
-// list every user (admin only; no emails or passwords)
+//users list
 app.get("/api/users", async (req, res) => {
     try {
         const db = getDB();
@@ -582,7 +581,7 @@ app.get("/api/users", async (req, res) => {
     }
 });
 
-// delete a user account and everything that belongs to it (admin only)
+//admin delete
 app.delete("/api/admin/users/:id", async (req, res) => {
     try {
         const db = getDB();
@@ -594,15 +593,15 @@ app.delete("/api/admin/users/:id", async (req, res) => {
             return res.status(400).json({ message: "You cannot delete your own admin account" });
         }
 
-        // their posts: remember the ids so other people's albums can drop them
+        //their posts
         const theirPosts = await db.collection("posts").find({ userId: target }, { projection: { _id: 1 } }).toArray();
         const postIds = theirPosts.map(p => p._id);
 
         await db.collection("posts").deleteMany({ userId: target });
         await db.collection("albums").deleteMany({ userId: target });
-        await db.collection("albums").updateMany({}, { $pull: { posts: { $in: postIds } } });                    // others' albums lose those posts
-        await db.collection("users").updateMany({}, { $pull: { friends: target, friendRequests: target } });    // gone from every friends list
-        await db.collection("posts").updateMany({}, { $pull: { comments: { userId: target } } });               // their comments disappear
+        await db.collection("albums").updateMany({}, { $pull: { posts: { $in: postIds } } });                    /
+        await db.collection("users").updateMany({}, { $pull: { friends: target, friendRequests: target } });    
+        await db.collection("posts").updateMany({}, { $pull: { comments: { userId: target } } });               
         await db.collection("users").deleteOne({ _id: target });
 
         res.json({ message: "User deleted" });
@@ -611,7 +610,7 @@ app.delete("/api/admin/users/:id", async (req, res) => {
     }
 });
 
-// change a profile picture; multer saves the file exactly like a post image
+//change a profile picture
 app.put("/api/users/:id/avatar", upload.single("avatar"), async (req, res) => {
     try {
         const db = getDB();

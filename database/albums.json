@@ -1,21 +1,21 @@
 [
   {
-    "_id": "6ae3a6c39444b740186d685c",
-    "userId": "6ae3a6c39444b740186d6841",
+    "_id": "6ae3b7fa0f725e7220d2572a",
+    "userId": "6ae3b7fa0f725e7220d2570f",
     "name": "Golden Hours",
     "description": "Every sunset I couldn't resist",
     "hashtags": [
       "goldenhour"
     ],
     "posts": [
-      "6ae3a6c39444b740186d6849",
-      "6ae3a6c39444b740186d6854"
+      "6ae3b7fa0f725e7220d25717",
+      "6ae3b7fa0f725e7220d25722"
     ],
-    "createdAt": "2026-10-24T20:04:19.539Z"
+    "createdAt": "2026-10-24T21:17:46.903Z"
   },
   {
-    "_id": "6ae3a6c39444b740186d685d",
-    "userId": "6ae3a6c39444b740186d6843",
+    "_id": "6ae3b7fa0f725e7220d2572b",
+    "userId": "6ae3b7fa0f725e7220d25711",
     "name": "Sketchbook Pages",
     "description": "Pastels, pencils and happy accidents",
     "hashtags": [
@@ -23,14 +23,14 @@
       "art"
     ],
     "posts": [
-      "6ae3a6c39444b740186d684a",
-      "6ae3a6c39444b740186d684b"
+      "6ae3b7fa0f725e7220d25718",
+      "6ae3b7fa0f725e7220d25719"
     ],
-    "createdAt": "2026-10-24T20:04:19.539Z"
+    "createdAt": "2026-10-24T21:17:46.903Z"
   },
   {
-    "_id": "6ae3a6c39444b740186d685e",
-    "userId": "6ae3a6c39444b740186d6845",
+    "_id": "6ae3b7fa0f725e7220d2572c",
+    "userId": "6ae3b7fa0f725e7220d25713",
     "name": "Joburg Streets",
     "description": "The city, one frame at a time",
     "hashtags": [
@@ -38,36 +38,36 @@
       "joburg"
     ],
     "posts": [
-      "6ae3a6c39444b740186d684d",
-      "6ae3a6c39444b740186d684e"
+      "6ae3b7fa0f725e7220d2571b",
+      "6ae3b7fa0f725e7220d2571c"
     ],
-    "createdAt": "2026-10-24T20:04:19.539Z"
+    "createdAt": "2026-10-24T21:17:46.903Z"
   },
   {
-    "_id": "6ae3a6c39444b740186d685f",
-    "userId": "6ae3a6c39444b740186d6848",
+    "_id": "6ae3b7fa0f725e7220d2572d",
+    "userId": "6ae3b7fa0f725e7220d25716",
     "name": "Analogue Days",
     "description": "Film grain and slow mornings",
     "hashtags": [
       "film"
     ],
     "posts": [
-      "6ae3a6c39444b740186d684f",
-      "6ae3a6c39444b740186d6855"
+      "6ae3b7fa0f725e7220d2571d",
+      "6ae3b7fa0f725e7220d25723"
     ],
-    "createdAt": "2026-10-24T20:04:19.539Z"
+    "createdAt": "2026-10-24T21:17:46.903Z"
   },
   {
-    "_id": "6ae3a6c39444b740186d6860",
-    "userId": "6ae3a6c39444b740186d6844",
+    "_id": "6ae3b7fa0f725e7220d2572e",
+    "userId": "6ae3b7fa0f725e7220d25712",
     "name": "Soundtracks",
     "description": "Music made in the studio",
     "hashtags": [
       "music"
     ],
     "posts": [
-      "6ae3a6c39444b740186d684c"
+      "6ae3b7fa0f725e7220d2571a"
     ],
-    "createdAt": "2026-10-24T20:04:19.539Z"
+    "createdAt": "2026-10-24T21:17:46.903Z"
   }
 ]

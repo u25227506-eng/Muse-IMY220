@@ -17,7 +17,7 @@ function AdminPage(){
     const [message, setMessage] = useState("");
     const [confirmUserId, setConfirmUserId] = useState("");   // which user's delete button is waiting for a second click
 
-    // fetches the three lists; the Array.isArray checks mean an error reply can never crash the page
+    // fetches the three lists
     function loadAll(){
         fetch(`http://localhost:5000/api/admin/reported?adminId=${adminId}`)
             .then(res => res.json())
@@ -72,7 +72,7 @@ function AdminPage(){
 
     async function deleteUser(userId){
         if (confirmUserId !== userId){
-            setConfirmUserId(userId);        // first click only asks "are you sure?"
+            setConfirmUserId(userId);      
             return;
         }
         const response = await fetch(`http://localhost:5000/api/admin/users/${userId}?adminId=${adminId}`, { method: "DELETE" });

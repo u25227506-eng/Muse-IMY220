@@ -7,7 +7,7 @@ import SearchInput from "../components/SearchInput";
 function Home(){
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem("museUser"));
-    const userId = user?._id;                 // a plain string, so the effect only re-runs when it really changes
+    const userId = user?._id;               
     const [posts, setPosts] = useState([]);
     const [feedType, setFeedType] = useState("local");
     const [sortBy, setSortBy] = useState("newest");
@@ -23,7 +23,7 @@ function Home(){
 
         fetch(url)
             .then(res => {
-                if (res.status === 404){                 // the saved user no longer exists
+                if (res.status === 404){                 
                     localStorage.removeItem("museUser");
                     navigate("/");
                     return null;
@@ -31,13 +31,13 @@ function Home(){
                 return res.json();
             })
             .then(data => {
-                if (Array.isArray(data)) setPosts(data);  // only a real list ever reaches the feed
+                if (Array.isArray(data)) setPosts(data); 
             });
     }, [feedType, userId, navigate]);
 
     if (!user) return null;
 
-    // sort a copy; "most commented" breaks ties by newest
+    // sort 
     const sortedPosts = [...posts].sort((a, b) => {
         if (sortBy === "comments"){
             const diff = (b.comments?.length || 0) - (a.comments?.length || 0);

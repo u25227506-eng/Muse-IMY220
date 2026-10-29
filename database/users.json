@@ -1,22 +1,22 @@
 [
   {
-    "_id": "6ae3a6c39444b740186d6841",
+    "_id": "6ae3b7fa0f725e7220d2570f",
     "username": "amara.lens",
     "email": "test@test.com",
     "password": "test1234",
     "bio": "Film photographer chasing golden hour",
     "avatarUrl": "",
     "friends": [
-      "6ae3a6c39444b740186d6843",
-      "6ae3a6c39444b740186d6844"
+      "6ae3b7fa0f725e7220d25711",
+      "6ae3b7fa0f725e7220d25712"
     ],
     "friendRequests": [
-      "6ae3a6c39444b740186d6846"
+      "6ae3b7fa0f725e7220d25714"
     ],
     "isAdmin": false
   },
   {
-    "_id": "6ae3a6c39444b740186d6842",
+    "_id": "6ae3b7fa0f725e7220d25710",
     "username": "muse.admin",
     "email": "admin@muse.com",
     "password": "admin1234",
@@ -27,83 +27,83 @@
     "friendRequests": []
   },
   {
-    "_id": "6ae3a6c39444b740186d6843",
+    "_id": "6ae3b7fa0f725e7220d25711",
     "username": "thandi.paints",
     "email": "thandi@muse.com",
     "password": "password123",
     "bio": "Oil pastels and Sunday markets",
     "avatarUrl": "",
     "friends": [
-      "6ae3a6c39444b740186d6841",
-      "6ae3a6c39444b740186d6844"
+      "6ae3b7fa0f725e7220d2570f",
+      "6ae3b7fa0f725e7220d25712"
     ],
     "friendRequests": [],
     "isAdmin": false
   },
   {
-    "_id": "6ae3a6c39444b740186d6844",
+    "_id": "6ae3b7fa0f725e7220d25712",
     "username": "kgosi.keys",
     "email": "kgosi@muse.com",
     "password": "password123",
     "bio": "Piano, lo-fi and long walks",
     "avatarUrl": "",
     "friends": [
-      "6ae3a6c39444b740186d6841",
-      "6ae3a6c39444b740186d6843",
-      "6ae3a6c39444b740186d6845"
+      "6ae3b7fa0f725e7220d2570f",
+      "6ae3b7fa0f725e7220d25711",
+      "6ae3b7fa0f725e7220d25713"
     ],
     "friendRequests": [],
     "isAdmin": false
   },
   {
-    "_id": "6ae3a6c39444b740186d6845",
+    "_id": "6ae3b7fa0f725e7220d25713",
     "username": "lwazi.lens",
     "email": "lwazi@muse.com",
     "password": "password123",
     "bio": "Street photography, Joburg",
     "avatarUrl": "",
     "friends": [
-      "6ae3a6c39444b740186d6844",
-      "6ae3a6c39444b740186d6847"
+      "6ae3b7fa0f725e7220d25712",
+      "6ae3b7fa0f725e7220d25715"
     ],
     "friendRequests": [],
     "isAdmin": false
   },
   {
-    "_id": "6ae3a6c39444b740186d6846",
+    "_id": "6ae3b7fa0f725e7220d25714",
     "username": "naledi.sketches",
     "email": "naledi@muse.com",
     "password": "password123",
     "bio": "Doodles on every receipt",
     "avatarUrl": "",
     "friends": [
-      "6ae3a6c39444b740186d6848"
+      "6ae3b7fa0f725e7220d25716"
     ],
     "friendRequests": [],
     "isAdmin": false
   },
   {
-    "_id": "6ae3a6c39444b740186d6847",
+    "_id": "6ae3b7fa0f725e7220d25715",
     "username": "sipho.beats",
     "email": "sipho@muse.com",
     "password": "password123",
     "bio": "Beatmaker, marimba on weekends",
     "avatarUrl": "",
     "friends": [
-      "6ae3a6c39444b740186d6845"
+      "6ae3b7fa0f725e7220d25713"
     ],
     "friendRequests": [],
     "isAdmin": false
   },
   {
-    "_id": "6ae3a6c39444b740186d6848",
+    "_id": "6ae3b7fa0f725e7220d25716",
     "username": "zanele.film",
     "email": "zanele@muse.com",
     "password": "password123",
     "bio": "Analogue film and slow mornings",
     "avatarUrl": "",
     "friends": [
-      "6ae3a6c39444b740186d6846"
+      "6ae3b7fa0f725e7220d25714"
     ],
     "friendRequests": [],
     "isAdmin": false

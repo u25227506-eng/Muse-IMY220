@@ -117,7 +117,6 @@ async function seed() {
         });
     }
 
-    // post 10 has 3 reports (hidden in the feed), post 4 has 1 (still visible)
     // reports keep WHO reported and WHY, which the admin page shows
     posts[10].reportCount = 3;
     posts[10].reports = [
