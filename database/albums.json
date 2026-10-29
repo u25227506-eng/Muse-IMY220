@@ -1,0 +1,73 @@
+[
+  {
+    "_id": "6ae3a6c39444b740186d685c",
+    "userId": "6ae3a6c39444b740186d6841",
+    "name": "Golden Hours",
+    "description": "Every sunset I couldn't resist",
+    "hashtags": [
+      "goldenhour"
+    ],
+    "posts": [
+      "6ae3a6c39444b740186d6849",
+      "6ae3a6c39444b740186d6854"
+    ],
+    "createdAt": "2026-10-24T20:04:19.539Z"
+  },
+  {
+    "_id": "6ae3a6c39444b740186d685d",
+    "userId": "6ae3a6c39444b740186d6843",
+    "name": "Sketchbook Pages",
+    "description": "Pastels, pencils and happy accidents",
+    "hashtags": [
+      "sketch",
+      "art"
+    ],
+    "posts": [
+      "6ae3a6c39444b740186d684a",
+      "6ae3a6c39444b740186d684b"
+    ],
+    "createdAt": "2026-10-24T20:04:19.539Z"
+  },
+  {
+    "_id": "6ae3a6c39444b740186d685e",
+    "userId": "6ae3a6c39444b740186d6845",
+    "name": "Joburg Streets",
+    "description": "The city, one frame at a time",
+    "hashtags": [
+      "street",
+      "joburg"
+    ],
+    "posts": [
+      "6ae3a6c39444b740186d684d",
+      "6ae3a6c39444b740186d684e"
+    ],
+    "createdAt": "2026-10-24T20:04:19.539Z"
+  },
+  {
+    "_id": "6ae3a6c39444b740186d685f",
+    "userId": "6ae3a6c39444b740186d6848",
+    "name": "Analogue Days",
+    "description": "Film grain and slow mornings",
+    "hashtags": [
+      "film"
+    ],
+    "posts": [
+      "6ae3a6c39444b740186d684f",
+      "6ae3a6c39444b740186d6855"
+    ],
+    "createdAt": "2026-10-24T20:04:19.539Z"
+  },
+  {
+    "_id": "6ae3a6c39444b740186d6860",
+    "userId": "6ae3a6c39444b740186d6844",
+    "name": "Soundtracks",
+    "description": "Music made in the studio",
+    "hashtags": [
+      "music"
+    ],
+    "posts": [
+      "6ae3a6c39444b740186d684c"
+    ],
+    "createdAt": "2026-10-24T20:04:19.539Z"
+  }
+]

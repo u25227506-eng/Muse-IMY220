@@ -1,0 +1,251 @@
+[
+  {
+    "_id": "6ae3a6c39444b740186d6849",
+    "userId": "6ae3a6c39444b740186d6841",
+    "username": "amara.lens",
+    "imageUrl": "/uploads/1790926254775-sunset.jpg",
+    "description": "Last light over the pier",
+    "hashtags": [
+      "goldenhour",
+      "sunset"
+    ],
+    "comments": [],
+    "reportCount": 0,
+    "createdAt": "2026-10-28T20:04:19.485Z"
+  },
+  {
+    "_id": "6ae3a6c39444b740186d684a",
+    "userId": "6ae3a6c39444b740186d6843",
+    "username": "thandi.paints",
+    "imageUrl": "/uploads/1790914533372-art1.jpg",
+    "description": "Baroque ceilings never get old",
+    "hashtags": [
+      "art",
+      "baroque"
+    ],
+    "comments": [
+      {
+        "_id": "6ae3a6c39444b740186d6856",
+        "userId": "6ae3a6c39444b740186d6841",
+        "username": "amara.lens",
+        "text": "This colour palette is unreal",
+        "createdAt": "2026-10-28T20:04:19.485Z"
+      },
+      {
+        "_id": "6ae3a6c39444b740186d6857",
+        "userId": "6ae3a6c39444b740186d6844",
+        "username": "kgosi.keys",
+        "text": "Where was this taken?",
+        "createdAt": "2026-10-28T20:04:19.485Z"
+      },
+      {
+        "_id": "6ae3a6c39444b740186d6858",
+        "userId": "6ae3a6c39444b740186d6845",
+        "username": "lwazi.lens",
+        "text": "Saving this for inspo",
+        "createdAt": "2026-10-28T20:04:19.485Z"
+      },
+      {
+        "_id": "6ae3a6c39444b740186d6859",
+        "userId": "6ae3a6c39444b740186d6846",
+        "username": "naledi.sketches",
+        "text": "The light here!!",
+        "createdAt": "2026-10-28T20:04:19.485Z"
+      },
+      {
+        "_id": "6ae3a6c39444b740186d685a",
+        "userId": "6ae3a6c39444b740186d6847",
+        "username": "sipho.beats",
+        "text": "Need a print of this",
+        "createdAt": "2026-10-28T20:04:19.485Z"
+      },
+      {
+        "_id": "6ae3a6c39444b740186d685b",
+        "userId": "6ae3a6c39444b740186d6848",
+        "username": "zanele.film",
+        "text": "Okay I'm obsessed",
+        "createdAt": "2026-10-28T20:04:19.485Z"
+      }
+    ],
+    "reportCount": 0,
+    "createdAt": "2026-10-27T20:04:19.485Z"
+  },
+  {
+    "_id": "6ae3a6c39444b740186d684b",
+    "userId": "6ae3a6c39444b740186d6843",
+    "username": "thandi.paints",
+    "imageUrl": "/uploads/1790914533372-art1.jpg",
+    "description": "Sketchbook study of a painted ceiling",
+    "hashtags": [
+      "sketch",
+      "drawing"
+    ],
+    "comments": [],
+    "reportCount": 0,
+    "createdAt": "2026-10-26T20:04:19.485Z"
+  },
+  {
+    "_id": "6ae3a6c39444b740186d684c",
+    "userId": "6ae3a6c39444b740186d6844",
+    "username": "kgosi.keys",
+    "imageUrl": "/uploads/1790915816845-avatar2.jpg",
+    "description": "Driving home with the lo-fi on",
+    "hashtags": [
+      "music",
+      "lofi"
+    ],
+    "comments": [],
+    "reportCount": 0,
+    "createdAt": "2026-10-25T20:04:19.485Z"
+  },
+  {
+    "_id": "6ae3a6c39444b740186d684d",
+    "userId": "6ae3a6c39444b740186d6845",
+    "username": "lwazi.lens",
+    "imageUrl": "/uploads/1790913644258-art2.jpg",
+    "description": "Vintage lines, no filter",
+    "hashtags": [
+      "vintage",
+      "monochrome"
+    ],
+    "comments": [],
+    "reportCount": 1,
+    "createdAt": "2026-10-24T20:04:19.485Z",
+    "reports": [
+      {
+        "userId": "6ae3a6c39444b740186d6843",
+        "reason": "Other",
+        "createdAt": "2026-10-28T20:04:19.485Z"
+      }
+    ]
+  },
+  {
+    "_id": "6ae3a6c39444b740186d684e",
+    "userId": "6ae3a6c39444b740186d6845",
+    "username": "lwazi.lens",
+    "imageUrl": "/uploads/1790915816845-avatar2.jpg",
+    "description": "Parked up at dusk, Joburg",
+    "hashtags": [
+      "joburg",
+      "street"
+    ],
+    "comments": [],
+    "reportCount": 0,
+    "createdAt": "2026-10-23T20:04:19.485Z"
+  },
+  {
+    "_id": "6ae3a6c39444b740186d684f",
+    "userId": "6ae3a6c39444b740186d6848",
+    "username": "zanele.film",
+    "imageUrl": "/uploads/1790913644258-art2.jpg",
+    "description": "First roll of the year, a vintage cockpit",
+    "hashtags": [
+      "film",
+      "analogue"
+    ],
+    "comments": [],
+    "reportCount": 0,
+    "createdAt": "2026-10-22T20:04:19.485Z"
+  },
+  {
+    "_id": "6ae3a6c39444b740186d6850",
+    "userId": "6ae3a6c39444b740186d6846",
+    "username": "naledi.sketches",
+    "imageUrl": "/uploads/flowers.jpg",
+    "description": "Gerbera in soft light",
+    "hashtags": [
+      "flowers",
+      "floral"
+    ],
+    "comments": [],
+    "reportCount": 0,
+    "createdAt": "2026-10-21T20:04:19.485Z"
+  },
+  {
+    "_id": "6ae3a6c39444b740186d6851",
+    "userId": "6ae3a6c39444b740186d6847",
+    "username": "sipho.beats",
+    "imageUrl": "/uploads/1790926254775-sunset.jpg",
+    "description": "Marimba practice by the water, take three",
+    "hashtags": [
+      "music",
+      "marimba"
+    ],
+    "comments": [],
+    "reportCount": 0,
+    "createdAt": "2026-10-20T20:04:19.485Z"
+  },
+  {
+    "_id": "6ae3a6c39444b740186d6852",
+    "userId": "6ae3a6c39444b740186d6841",
+    "username": "amara.lens",
+    "imageUrl": "/uploads/flowers.jpg",
+    "description": "Market-day colours",
+    "hashtags": [
+      "flowers",
+      "colour"
+    ],
+    "comments": [],
+    "reportCount": 0,
+    "createdAt": "2026-10-19T20:04:19.485Z"
+  },
+  {
+    "_id": "6ae3a6c39444b740186d6853",
+    "userId": "6ae3a6c39444b740186d6846",
+    "username": "naledi.sketches",
+    "imageUrl": "/uploads/1790914533372-art1.jpg",
+    "description": "Figure study after a ceiling painting",
+    "hashtags": [
+      "portrait",
+      "art"
+    ],
+    "comments": [],
+    "reportCount": 3,
+    "createdAt": "2026-10-18T20:04:19.485Z",
+    "reports": [
+      {
+        "userId": "6ae3a6c39444b740186d6844",
+        "reason": "Spam",
+        "createdAt": "2026-10-27T20:04:19.485Z"
+      },
+      {
+        "userId": "6ae3a6c39444b740186d6845",
+        "reason": "Inappropriate content",
+        "createdAt": "2026-10-27T20:04:19.485Z"
+      },
+      {
+        "userId": "6ae3a6c39444b740186d6847",
+        "reason": "Spam",
+        "createdAt": "2026-10-28T20:04:19.485Z"
+      }
+    ]
+  },
+  {
+    "_id": "6ae3a6c39444b740186d6854",
+    "userId": "6ae3a6c39444b740186d6841",
+    "username": "amara.lens",
+    "imageUrl": "/uploads/1790926254775-sunset.jpg",
+    "description": "Another evening, another sunset",
+    "hashtags": [
+      "goldenhour",
+      "sunset"
+    ],
+    "comments": [],
+    "reportCount": 0,
+    "createdAt": "2026-10-17T20:04:19.485Z"
+  },
+  {
+    "_id": "6ae3a6c39444b740186d6855",
+    "userId": "6ae3a6c39444b740186d6848",
+    "username": "zanele.film",
+    "imageUrl": "/uploads/1790913644258-art2.jpg",
+    "description": "Slow mornings, slow film",
+    "hashtags": [
+      "film",
+      "analogue"
+    ],
+    "comments": [],
+    "reportCount": 0,
+    "createdAt": "2026-10-16T20:04:19.485Z"
+  }
+]

@@ -1,0 +1,111 @@
+[
+  {
+    "_id": "6ae3a6c39444b740186d6841",
+    "username": "amara.lens",
+    "email": "test@test.com",
+    "password": "test1234",
+    "bio": "Film photographer chasing golden hour",
+    "avatarUrl": "",
+    "friends": [
+      "6ae3a6c39444b740186d6843",
+      "6ae3a6c39444b740186d6844"
+    ],
+    "friendRequests": [
+      "6ae3a6c39444b740186d6846"
+    ],
+    "isAdmin": false
+  },
+  {
+    "_id": "6ae3a6c39444b740186d6842",
+    "username": "muse.admin",
+    "email": "admin@muse.com",
+    "password": "admin1234",
+    "bio": "Keeping the gallery lovely",
+    "isAdmin": true,
+    "avatarUrl": "",
+    "friends": [],
+    "friendRequests": []
+  },
+  {
+    "_id": "6ae3a6c39444b740186d6843",
+    "username": "thandi.paints",
+    "email": "thandi@muse.com",
+    "password": "password123",
+    "bio": "Oil pastels and Sunday markets",
+    "avatarUrl": "",
+    "friends": [
+      "6ae3a6c39444b740186d6841",
+      "6ae3a6c39444b740186d6844"
+    ],
+    "friendRequests": [],
+    "isAdmin": false
+  },
+  {
+    "_id": "6ae3a6c39444b740186d6844",
+    "username": "kgosi.keys",
+    "email": "kgosi@muse.com",
+    "password": "password123",
+    "bio": "Piano, lo-fi and long walks",
+    "avatarUrl": "",
+    "friends": [
+      "6ae3a6c39444b740186d6841",
+      "6ae3a6c39444b740186d6843",
+      "6ae3a6c39444b740186d6845"
+    ],
+    "friendRequests": [],
+    "isAdmin": false
+  },
+  {
+    "_id": "6ae3a6c39444b740186d6845",
+    "username": "lwazi.lens",
+    "email": "lwazi@muse.com",
+    "password": "password123",
+    "bio": "Street photography, Joburg",
+    "avatarUrl": "",
+    "friends": [
+      "6ae3a6c39444b740186d6844",
+      "6ae3a6c39444b740186d6847"
+    ],
+    "friendRequests": [],
+    "isAdmin": false
+  },
+  {
+    "_id": "6ae3a6c39444b740186d6846",
+    "username": "naledi.sketches",
+    "email": "naledi@muse.com",
+    "password": "password123",
+    "bio": "Doodles on every receipt",
+    "avatarUrl": "",
+    "friends": [
+      "6ae3a6c39444b740186d6848"
+    ],
+    "friendRequests": [],
+    "isAdmin": false
+  },
+  {
+    "_id": "6ae3a6c39444b740186d6847",
+    "username": "sipho.beats",
+    "email": "sipho@muse.com",
+    "password": "password123",
+    "bio": "Beatmaker, marimba on weekends",
+    "avatarUrl": "",
+    "friends": [
+      "6ae3a6c39444b740186d6845"
+    ],
+    "friendRequests": [],
+    "isAdmin": false
+  },
+  {
+    "_id": "6ae3a6c39444b740186d6848",
+    "username": "zanele.film",
+    "email": "zanele@muse.com",
+    "password": "password123",
+    "bio": "Analogue film and slow mornings",
+    "avatarUrl": "",
+    "friends": [
+      "6ae3a6c39444b740186d6846"
+    ],
+    "friendRequests": [],
+    "isAdmin": false
+  }
+]
