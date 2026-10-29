@@ -4,9 +4,7 @@ import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
 import {connectDB, getDB} from "./db.js";
-import User from "./models/User.js";
-import Post from "./models/Post.js";
-import Album from "./models/Album.js";
+import {ObjectId} from "mongodb"
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,6 +26,10 @@ const storage = multer.diskStorage({
     },
 });
 const upload = multer({storage});
+//for trimming to help search and hashtags
+function cleanHashtags(list) {
+    return list.map(h => h.trim().replace(/^#/, "")).filter(h => h !== "");
+}
 
 //signing in/up
 
@@ -74,270 +76,347 @@ app.post("/api/signup", async (req, res) => {
 
 app.get("/api/users/:id", async (req, res) => {
     try{
-        const user = await User.findById(req.params.id)
-            .populate("friends", "username avatarUrl")
-            .populate("friendRequests", "username avatarUrl");
+        const db = getDB();
+
+        const user = await db.collection("users").findOne(
+            {_id: new ObjectId(req.params.id)},
+            { projection: {password: 0, email: 0}}
+        );
+
         if(!user){
             return res.status(404).json({message: "User not found"});
         } 
-        res.json(user);
+
+        const friends = await db.collection("users").find(
+            {_id:{ $in: user.friends}},
+            {projection: {username: 1, avatarUrl: 1}}
+        ).toArray();
+
+        const friendRequests = await db.collection("users").find(
+            {_id:{ $in: user.friendRequests}},
+            {projection: {username: 1, avatarUrl: 1}}
+        ).toArray();
+
+        res.json({...user, friends, friendRequests});
     } catch (err){
          res.status(500).json({message: "Error fetching user", error: err.message});
     }
 });
 
 app.put("/api/users/:id", async (req, res) => {
-    try{
-        const {username, bio, avatarUrl } = req.body;
-        const user = await User.findByIdAndUpdate(
-            req.params.id,
-            {username, bio, avatarUrl},
-            {new: true}
+    try {
+        const db = getDB();
+        const { username, bio } = req.body;
+        const user = await db.collection("users").findOneAndUpdate(
+            { _id: new ObjectId(req.params.id) },
+            { $set: { username, bio } },                    
+            { returnDocument: "after", projection: { password: 0 } }  
         );
         res.json(user);
-    }catch (err){
-        res.status(500).json({message: "Error updating profile", error: err.message});
+    } catch (err) {
+        res.status(500).json({ message: "Error updating profile", error: err.message });
     }
 });
 
 //friends
 app.post("/api/users/:id/friend-request", async (req, res) => {
-    try{
-        const {fromUserId} = req.body;
-        await User.findByIdAndUpdate(req.params.id, {
-            $addToSet: {friendRequests: fromUserId}, 
-        });
-
-        res.json({ message: "Friend request sent"});
-    }catch (err){
-        res.status(500).json({message: "Error sending friend request", error: err.message});
+    try {
+        const db = getDB();
+        const { fromUserId } = req.body;
+        await db.collection("users").updateOne(
+            { _id: new ObjectId(req.params.id) },
+            { $addToSet: { friendRequests: new ObjectId(fromUserId) } }   // no duplicate if they click twice
+        );
+        res.json({ message: "Friend request sent" });
+    } catch (err) {
+        res.status(500).json({ message: "Error sending friend request", error: err.message });
     }
 });
 
 app.post("/api/users/:id/accept-friend", async (req, res) => {
-    try{
-        const {friendId} = req.body;
-        await User.findByIdAndUpdate(req.params.id, {
-            $addToSet: {friends: friendId}, 
-            $pull: { friendRequests: friendId},
-        });
-        await User.findByIdAndUpdate(friendId, {
-            $addToSet: {friends: req.params.id},
-        });
-        res.json({ message: "Friend request accepted"});
-    }catch (err){
-        res.status(500).json({message: "Error accepting friend request", error: err.message});
+    try {
+        const db = getDB();
+        const me = new ObjectId(req.params.id);
+        const friend = new ObjectId(req.body.friendId);
+       //my side: add and remove
+        await db.collection("users").updateOne(
+            { _id: me },
+            { $addToSet: { friends: friend }, $pull: { friendRequests: friend } }
+        );
+        //their side
+        await db.collection("users").updateOne(
+            { _id: friend },
+            { $addToSet: { friends: me } }
+        );
+        res.json({ message: "Friend request accepted" });
+    } catch (err) {
+        res.status(500).json({ message: "Error accepting friend request", error: err.message });
     }
 });
 
 app.delete("/api/users/:id/unfriend/:friendId", async (req, res) => {
-    try{
-        await User.findByIdAndUpdate(req.params.id, { 
-            $pull: {friends: req.params.friendId}
-        });
-        await User.findByIdAndUpdate(req.params.friendId, { 
-            $pull: {friends: req.params.id}
-        });
-        res.json({ message: "Unfriended"});
-    }catch (err){
-        res.status(500).json({message: "Error unfriending", error: err.message});
+    try {
+        const db = getDB();
+        const me = new ObjectId(req.params.id);
+        const friend = new ObjectId(req.params.friendId);
+        await db.collection("users").updateOne({ _id: me }, { $pull: { friends: friend } });
+        await db.collection("users").updateOne({ _id: friend }, { $pull: { friends: me } });
+        res.json({ message: "Unfriended" });
+    } catch (err) {
+        res.status(500).json({ message: "Error unfriending", error: err.message });
     }
 });
 
 //Posts
-
 app.post("/api/posts", upload.single("image"), async (req, res) => {
-    try{
-        const {userId, username, description, hashtags} = req.body;
-        const imageUrl = `/uploads/${req.file.filename}`;
-        const hashtagArray = hashtags ? hashtags.split(",").map( h => 
-            h.trim()
-        ) : [];
-
-        const post = new Post({userId, username, imageUrl, description, hashtags: hashtagArray});
-        await post.save();
-        res.json(post);
-    } catch (err){
-        res.status(500).json({message: "Error creating post", error: err.message});
+    try {
+        const db = getDB();
+        const { userId, username, description, hashtags } = req.body;
+        const newPost = {
+            userId: new ObjectId(userId), //stored as ObjectId so the feed queries match
+            username,
+            imageUrl: `/uploads/${req.file.filename}`,
+            description,
+            hashtags: cleanHashtags(hashtags ? hashtags.split(",") : []),
+            comments: [],
+            reportCount: 0,
+            createdAt: new Date(),                           
+        };
+        const result = await db.collection("posts").insertOne(newPost);
+        res.json({ ...newPost, _id: result.insertedId });
+    } catch (err) {
+        res.status(500).json({ message: "Error creating post", error: err.message });
     }
 });
 
 //Global feed
-
 app.get("/api/posts", async (req, res) => {
-    try{
-        const posts = await Post.find().sort({ createdAt: -1});
+    try {
+        const db = getDB();
+        const posts = await db.collection("posts").find().sort({ createdAt: -1 }).toArray();
         res.json(posts);
-    }catch(err){
-        res.status(500).json({message: "Error fetching posts", error: err.message});
-    }
-});
-
-// Posts by a specific user (for their profile page)
-app.get("/api/users/:id/posts", async (req, res) => {
-    try{
-        const posts = await Post.find({ userId: req.params.id }).sort({ createdAt: -1 });
-        res.json(posts);
-    }catch(err){
-        res.status(500).json({message: "Error fetching user posts", error: err.message});
-    }
-});
-
-//Local feed (user + friends)
-
-//specific user
-app.get("/api/users/:id/feed", async (req, res) => {
-    try{
-        const user = await User.findById(req.params.id);
-        const ids = [user.id, ...user.friends];
-        const posts = await Post.find({ userId: {$in: ids}}).sort({ createdAt: -1});
-        res.json(posts);
-    }catch(err){
-        res.status(500).json({message: "Error fetching posts", error: err.message});
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching posts", error: err.message });
     }
 });
 
 app.get("/api/posts/:id", async (req, res) => {
-    try{
-        const posts = await Post.findById(req.params.id);
-        if(!posts){
-            return res.status(404).json({message: "Post not found"});
+    try {
+        const db = getDB();
+        const post = await db.collection("posts").findOne({ _id: new ObjectId(req.params.id) });
+        if (!post) {
+            return res.status(404).json({ message: "Post not found" });
         }
-        res.json(posts);
-    }catch (err){
-        res.status(500).json({message: "Error fetching post", error: err.message});
+        res.json(post);
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching post", error: err.message });
     }
 });
 
 app.put("/api/posts/:id", async (req, res) => {
-    try{
-        const {description, hashtags} = req.body;
-        const post = await Post.findByIdAndUpdate(
-            req.params.id,
-            {description, hashtags},
-            {new: true}
+    try {
+        const db = getDB();
+        const { description, hashtags } = req.body;
+        const post = await db.collection("posts").findOneAndUpdate(
+            { _id: new ObjectId(req.params.id) },
+            { $set: { description, hashtags: cleanHashtags(hashtags || []) } },
+            { returnDocument: "after" }
         );
         res.json(post);
-    } catch (err){
-        res.status(500).json({message: "Error updating post", error: err.message});
+    } catch (err) {
+        res.status(500).json({ message: "Error updating post", error: err.message });
     }
 });
 
 app.delete("/api/posts/:id", async (req, res) => {
-    try{
-        await Post.findByIdAndDelete(req.params.id);
-        res.json({message: "Post deleted"});
-    }catch (err){
-        res.status(500).json({message: "Error deleting post", error: err.message});
+    try {
+        const db = getDB();
+        const postId = new ObjectId(req.params.id);
+        await db.collection("posts").deleteOne({ _id: postId });  
+
+        const albums = await db.collection("albums").find({ posts: postId }).toArray();
+        for (let i = 0; i < albums.length; i++) {
+            if (albums[i].posts.length === 1) {
+                //album goes too 
+                await db.collection("albums").deleteOne({ _id: albums[i]._id });
+            } else {
+                await db.collection("albums").updateOne({ _id: albums[i]._id }, { $pull: { posts: postId } });
+            }
+        }
+        res.json({ message: "Post deleted" });
+    } catch (err) {
+        res.status(500).json({ message: "Error deleting post", error: err.message });
     }
 });
 
-app.post("/api/posts/:id/comments", async(req, res) => {
-    try{
-        const {userId, username, text} = req.body;
-        const post = await  Post.findByIdAndUpdate(
-            req.params.id,
-            {$push: {comments: {userId, username, text}}},
-            {new: true}
+app.post("/api/posts/:id/comments", async (req, res) => {
+    try {
+        const db = getDB();
+        const { userId, username, text } = req.body;
+        const comment = {
+            _id: new ObjectId(),                               
+            userId: new ObjectId(userId),
+            username,
+            text,
+            createdAt: new Date(),
+        };
+        const post = await db.collection("posts").findOneAndUpdate(
+            { _id: new ObjectId(req.params.id) },
+            { $push: { comments: comment } },
+            { returnDocument: "after" }
         );
         res.json(post);
-    } catch (err){
-        res.status(500).json({message: "Error adding comment", error: err.message});
+    } catch (err) {
+        res.status(500).json({ message: "Error adding comment", error: err.message });
     }
 });
 
-app.post("/api/posts/:id/report", async(req, res) => {
-    try{
-        const post = await Post.findByIdAndUpdate(
-            req.params.id,
-            {$inc: {reportCount: 1}},
-            {new: true}
+app.post("/api/posts/:id/report", async (req, res) => {
+    try {
+        const db = getDB();
+        const post = await db.collection("posts").findOneAndUpdate(
+            { _id: new ObjectId(req.params.id) },
+            { $inc: { reportCount: 1 } },
+            { returnDocument: "after" }
         );
         res.json(post);
-    } catch (err){
-        res.status(500).json({message: "Error reporting this post", error: err.message});
+    } catch (err) {
+        res.status(500).json({ message: "Error reporting this post", error: err.message });
     }
 });
 
-//Albums 
+// posts by one user (profile page)
+app.get("/api/users/:id/posts", async (req, res) => {
+    try {
+        const db = getDB();
+        const posts = await db.collection("posts")
+            .find({ userId: new ObjectId(req.params.id) })   // ids are stored as ObjectId, so convert the URL text
+            .sort({ createdAt: -1 })                         // newest first
+            .toArray();                                      // find() gives a cursor, toArray() makes a list
+        res.json(posts);
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching user posts", error: err.message });
+    }
+});
+
+// local feed: my posts plus my friends' posts
+app.get("/api/users/:id/feed", async (req, res) => {
+    try {
+        const db = getDB();
+        const user = await db.collection("users").findOne({ _id: new ObjectId(req.params.id) });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        const ids = [user._id, ...user.friends];             // the native driver has no user.id shortcut
+        const posts = await db.collection("posts")
+            .find({ userId: { $in: ids } })                  // $in: match any id in the list
+            .sort({ createdAt: -1 })
+            .toArray();
+        res.json(posts);
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching feed", error: err.message });
+    }
+});
+
+// albums by one user (profile page)
+app.get("/api/users/:id/albums", async (req, res) => {
+    try {
+        const db = getDB();
+        const albums = await db.collection("albums")
+            .find({ userId: new ObjectId(req.params.id) })
+            .toArray();
+        res.json(albums);
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching albums", error: err.message });
+    }
+});
+
+//Albums
 
 app.post("/api/albums", async (req, res) => {
-    try{
-        const {userId, name, description, hashtags} = req.body;
-        const album = new Album({userId, name, description, hashtags});
-        await album.save();
-        res.json(album);
-    } catch (err){
-        res.status(500).json({message: "Error creatiing album", error: err.message});
-    }
-});
-
-//specific album
-app.get("/api/users/:id/albums", async (req, res) => {
-    try{
-        const albums = await Album.find({ userId: req.params.id });
-        res.json(albums);
-    }catch(err){
-        res.status(500).json({message: "Error fetching albums", error: err.message});
+    try {
+        const db = getDB();
+        const { userId, name, description, hashtags } = req.body;
+        const newAlbum = {
+            userId: new ObjectId(userId),
+            name,
+            description,
+            hashtags: cleanHashtags(hashtags || []),
+            posts: [],
+            createdAt: new Date(),
+        };
+        const result = await db.collection("albums").insertOne(newAlbum);
+        res.json({ ...newAlbum, _id: result.insertedId });
+    } catch (err) {
+        res.status(500).json({ message: "Error creating album", error: err.message });
     }
 });
 
 app.get("/api/albums/:id", async (req, res) => {
-    try{
-        const album = await Album.findById(req.params.id).populate("posts");
-        res.json(album);
-    }catch (err){
-        res.status(500).json({message: "Error fetching album", error: err.message});
+    try {
+        const db = getDB();
+        const album = await db.collection("albums").findOne({ _id: new ObjectId(req.params.id) });
+        if (!album) {
+            return res.status(404).json({ message: "Album not found" });
+        }
+        // replaces Mongoose's populate: fetch the full posts for the stored ids
+        const posts = await db.collection("posts").find({ _id: { $in: album.posts } }).toArray();
+        res.json({ ...album, posts });
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching album", error: err.message });
     }
 });
 
 app.put("/api/albums/:id", async (req, res) => {
-    try{
-        const {name, description, hashtags} = req.body;
-        const album = await Album.findByIdAndUpdate(
-            req.params.id,
-            {name, description, hashtags},
-            {new: true}
+    try {
+        const db = getDB();
+        const { name, description, hashtags } = req.body;
+        const album = await db.collection("albums").findOneAndUpdate(
+            { _id: new ObjectId(req.params.id) },
+            { $set: { name, description, hashtags: cleanHashtags(hashtags || []) } },
+            { returnDocument: "after" }
         );
         res.json(album);
-    } catch (err){
-        res.status(500).json({message: "Error updating album", error: err.message});
+    } catch (err) {
+        res.status(500).json({ message: "Error updating album", error: err.message });
     }
 });
 
 app.delete("/api/albums/:id", async (req, res) => {
-    try{
-        await Album.findByIdAndDelete(req.params.id);
-        res.json({message: "Album deleted"});
-    }catch (err){
-        res.status(500).json({message: "Error deleting album", error: err.message});
+    try {
+        const db = getDB();
+        await db.collection("albums").deleteOne({ _id: new ObjectId(req.params.id) });   //posts stay, only the album goes
+        res.json({ message: "Album deleted" });
+    } catch (err) {
+        res.status(500).json({ message: "Error deleting album", error: err.message });
     }
 });
 
-app.post("/api/albums/:id/posts", async(req, res) => {
-    try{
-        const {postId} = req.body;
-        const album = await  Album.findByIdAndUpdate(
-            req.params.id,
-            {$addToSet: {posts: postId}},
-            {new: true}
+app.post("/api/albums/:id/posts", async (req, res) => {
+    try {
+        const db = getDB();
+        const album = await db.collection("albums").findOneAndUpdate(
+            { _id: new ObjectId(req.params.id) },
+            { $addToSet: { posts: new ObjectId(req.body.postId) } },   //no duplicates
+            { returnDocument: "after" }
         );
         res.json(album);
-    } catch (err){
-        res.status(500).json({message: "Error adding post to album", error: err.message});
+    } catch (err) {
+        res.status(500).json({ message: "Error adding post to album", error: err.message });
     }
 });
 
-app.delete("/api/albums/:id/posts/:postId", async(req, res) => {
-    try{
-        const album = await Album.findByIdAndUpdate(
-            req.params.id,
-            {$pull: {posts: req.params.postId}},
-            {new: true}
+app.delete("/api/albums/:id/posts/:postId", async (req, res) => {
+    try {
+        const db = getDB();
+        const album = await db.collection("albums").findOneAndUpdate(
+            { _id: new ObjectId(req.params.id) },
+            { $pull: { posts: new ObjectId(req.params.postId) } }, // remove it from the list
+            { returnDocument: "after" }
         );
         res.json(album);
-    } catch (err){
-        res.status(500).json({message: "Error removing post from album.", error: err.message});
+    } catch (err) {
+        res.status(500).json({ message: "Error removing post from album", error: err.message });
     }
 });
 
