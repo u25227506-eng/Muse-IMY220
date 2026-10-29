@@ -31,6 +31,13 @@ function cleanHashtags(list) {
     return list.map(h => h.trim().replace(/^#/, "")).filter(h => h !== "");
 }
 
+// true only if this user id belongs to an admin account
+async function isAdmin(db, userId) {
+    if (!userId || !ObjectId.isValid(userId)) return false;
+    const user = await db.collection("users").findOne({ _id: new ObjectId(userId) });
+    return user !== null && user.isAdmin === true;
+}
+
 //signing in/up
 
 app.post("/api/signin", async (req, res) => {
@@ -497,6 +504,110 @@ app.delete("/api/albums/:id/posts/:postId", async (req, res) => {
         res.json(album);
     } catch (err) {
         res.status(500).json({ message: "Error removing post from album", error: err.message });
+    }
+});
+
+// ===== ADMIN =====
+
+// all reported posts, most reported first (admin only)
+app.get("/api/admin/reported", async (req, res) => {
+    try {
+        const db = getDB();
+        if (!(await isAdmin(db, req.query.adminId))) {
+            return res.status(403).json({ message: "Admins only" });
+        }
+        const posts = await db.collection("posts")
+            .find({ reportCount: { $gt: 0 } })      // $gt: greater than 0, so only posts that have reports
+            .sort({ reportCount: -1 })
+            .toArray();
+        res.json(posts);
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching reported posts", error: err.message });
+    }
+});
+
+// the admin decides a post is fine: remove all its reports
+app.post("/api/admin/posts/:id/dismiss-reports", async (req, res) => {
+    try {
+        const db = getDB();
+        if (!(await isAdmin(db, req.body.adminId))) {
+            return res.status(403).json({ message: "Admins only" });
+        }
+        await db.collection("posts").updateOne(
+            { _id: new ObjectId(req.params.id) },
+            { $set: { reportCount: 0, reports: [] } }
+        );
+        res.json({ message: "Reports removed" });
+    } catch (err) {
+        res.status(500).json({ message: "Error removing reports", error: err.message });
+    }
+});
+
+// add a new report reason (admin only)
+app.post("/api/reasons", async (req, res) => {
+    try {
+        const db = getDB();
+        if (!(await isAdmin(db, req.body.adminId))) {
+            return res.status(403).json({ message: "Admins only" });
+        }
+        const reason = (req.body.reason || "").trim();
+        if (reason === "") {
+            return res.status(400).json({ message: "Please type a reason" });
+        }
+        const existing = await db.collection("reasons").findOne({ reason });
+        if (existing) {
+            return res.status(400).json({ message: "That reason already exists" });
+        }
+        const result = await db.collection("reasons").insertOne({ reason });
+        res.json({ _id: result.insertedId, reason });
+    } catch (err) {
+        res.status(500).json({ message: "Error adding reason", error: err.message });
+    }
+});
+
+// list every user (admin only; no emails or passwords)
+app.get("/api/users", async (req, res) => {
+    try {
+        const db = getDB();
+        if (!(await isAdmin(db, req.query.adminId))) {
+            return res.status(403).json({ message: "Admins only" });
+        }
+        const users = await db.collection("users")
+            .find({}, { projection: { username: 1, avatarUrl: 1, isAdmin: 1 } })
+            .sort({ username: 1 })
+            .toArray();
+        res.json(users);
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching users", error: err.message });
+    }
+});
+
+// delete a user account and everything that belongs to it (admin only)
+app.delete("/api/admin/users/:id", async (req, res) => {
+    try {
+        const db = getDB();
+        if (!(await isAdmin(db, req.query.adminId))) {
+            return res.status(403).json({ message: "Admins only" });
+        }
+        const target = new ObjectId(req.params.id);
+        if (target.equals(new ObjectId(req.query.adminId))) {
+            return res.status(400).json({ message: "You cannot delete your own admin account" });
+        }
+
+        // their posts: remember the ids so other people's albums can drop them
+        const theirPosts = await db.collection("posts").find({ userId: target }, { projection: { _id: 1 } }).toArray();
+        const postIds = theirPosts.map(p => p._id);
+
+        await db.collection("posts").deleteMany({ userId: target });
+        await db.collection("albums").deleteMany({ userId: target });
+        await db.collection("albums").updateMany({}, { $pull: { posts: { $in: postIds } } });                    // others' albums lose those posts
+        await db.collection("users").updateMany({}, { $pull: { friends: target, friendRequests: target } });    // gone from every friends list
+        await db.collection("posts").updateMany({}, { $pull: { comments: { userId: target } } });               // their comments disappear
+        await db.collection("users").deleteOne({ _id: target });
+
+        res.json({ message: "User deleted" });
+    } catch (err) {
+        res.status(500).json({ message: "Error deleting user", error: err.message });
     }
 });
 

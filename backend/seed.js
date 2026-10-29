@@ -117,8 +117,17 @@ async function seed() {
         });
     }
 
-    // post 10 is reported 3 times, so it is hidden from the feed once that feature exists
+    // post 10 has 3 reports (hidden in the feed), post 4 has 1 (still visible)
+    // reports keep WHO reported and WHY, which the admin page shows
     posts[10].reportCount = 3;
+    posts[10].reports = [
+        { userId: u[3], reason: "Spam", createdAt: daysAgo(2) },
+        { userId: u[4], reason: "Inappropriate content", createdAt: daysAgo(2) },
+        { userId: u[6], reason: "Spam", createdAt: daysAgo(1) },
+    ];
+    
+    posts[4].reportCount = 1;
+    posts[4].reports = [{ userId: u[2], reason: "Other", createdAt: daysAgo(1) }];
 
     await db.collection("posts").insertMany(posts);
 

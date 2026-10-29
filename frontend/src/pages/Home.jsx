@@ -19,9 +19,18 @@ function Home(){
             ? `http://localhost:5000/api/users/${user._id}/feed`
             : `http://localhost:5000/api/posts`;
 
-        fetch(url)
-            .then(res => res.json())
-            .then(data => setPosts(data));
+    fetch(url)
+        .then(res => {
+            if (res.status === 404) {                      // the saved user no longer exists
+                localStorage.removeItem("museUser");       // forget them and go back to the splash page
+                navigate("/");
+                return null;
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (Array.isArray(data)) setPosts(data);       // only a real list ever reaches the feed
+        });
     }, [feedType, user, navigate]);
 
     if (!user) return null;
