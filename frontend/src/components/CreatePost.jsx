@@ -47,19 +47,25 @@ function CreatePost() {
                 />
             </label>
 
+            <label htmlFor="create-post-caption" className="text-sm font-medium text-muse-dark">Caption</label>
             <textarea
+                id="create-post-caption"
                 placeholder="write a caption..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="px-4 py-2 rounded-lg border border-muse-pink/50 bg-muse-cream focus:outline-none focus:ring-2 focus:ring-muse-mauve"
             />
+
+            <label htmlFor="create-post-hashtags" className="text-sm font-medium text-muse-dark">Hashtags (comma separated)</label>
             <input
+                id="create-post-hashtags"
                 type="text"
-                placeholder="hashtags (comma separated)"
+                placeholder="art, sunset"
                 value={hashtags}
                 onChange={(e) => setHashtags(e.target.value)}
                 className="px-4 py-2 rounded-lg border border-muse-pink/50 bg-muse-cream focus:outline-none focus:ring-2 focus:ring-muse-mauve"
             />
+
             <button type="submit" className="px-4 py-2 rounded-full bg-muse-mauve text-muse-cream font-medium hover:bg-muse-dark transition-colors">
                 Post
             </button>

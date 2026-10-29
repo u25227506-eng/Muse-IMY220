@@ -17,17 +17,23 @@ function EditProfile({user, onSave}) {
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-3 bg-white rounded-2xl shadow-sm p-5 max-w-sm mx-auto my-4">
+            <label htmlFor="edit-profile-username" className="text-sm font-medium text-muse-dark">Username</label>
             <input
+                id="edit-profile-username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="px-4 py-2 rounded-lg border border-muse-pink/50 bg-muse-cream focus:outline-none focus:ring-2 focus:ring-muse-mauve"
             />
+
+            <label htmlFor="edit-profile-bio" className="text-sm font-medium text-muse-dark">Bio</label>
             <textarea
+                id="edit-profile-bio"
                 value={bio}
-                onChange={(e) =>setBio(e.target.value)}
+                onChange={(e) => setBio(e.target.value)}
                 className="px-4 py-2 rounded-lg border border-muse-pink/50 bg-muse-cream focus:outline-none focus:ring-2 focus:ring-muse-mauve"
             />
+
             <button type="submit" className="px-4 py-2 rounded-full bg-muse-mauve text-muse-cream font-medium hover:bg-muse-dark transition-colors">
                 Save Changes
             </button>

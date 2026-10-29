@@ -23,26 +23,33 @@ function CreateAlbum({ userId, onCreated }) {
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-3 bg-white rounded-2xl shadow-sm p-5 max-w-sm">
             <h3 className="font-display text-lg text-muse-dark">New Album</h3>
+
+            <label htmlFor="create-album-name" className="text-sm font-medium text-muse-dark">Album name</label>
             <input
+                id="create-album-name"
                 type="text"
-                placeholder="album name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="px-4 py-2 rounded-lg border border-muse-pink/50 bg-muse-cream focus:outline-none focus:ring-2 focus:ring-muse-mauve"
             />
+
+            <label htmlFor="create-album-description" className="text-sm font-medium text-muse-dark">Description</label>
             <textarea
-                placeholder="description"
+                id="create-album-description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="px-4 py-2 rounded-lg border border-muse-pink/50 bg-muse-cream focus:outline-none focus:ring-2 focus:ring-muse-mauve"
             />
+
+            <label htmlFor="create-album-hashtags" className="text-sm font-medium text-muse-dark">Hashtags (comma separated)</label>
             <input
+                id="create-album-hashtags"
                 type="text"
-                placeholder="hashtags (comma separated)"
                 value={hashtags}
                 onChange={(e) => setHashtags(e.target.value)}
                 className="px-4 py-2 rounded-lg border border-muse-pink/50 bg-muse-cream focus:outline-none focus:ring-2 focus:ring-muse-mauve"
             />
+
             <button type="submit" className="px-4 py-2 rounded-full bg-muse-mauve text-muse-cream font-medium hover:bg-muse-dark transition-colors">
                 Create Album
             </button>

@@ -148,7 +148,9 @@ function PostPage(){
                 )}
 
                 <form onSubmit={handleAddComment} className="flex gap-2 my-4">
+                    <label htmlFor="comment-input" className="sr-only">Add a comment</label>
                     <input
+                        id="comment-input"
                         type="text"
                         placeholder="Add a comment..."
                         value={commentText}
